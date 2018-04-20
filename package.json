@@ -1,0 +1,40 @@
+{
+  "name": "compare-by",
+  "version": "0.0.0",
+  "description": "",
+  "main": "cjs/compare-by.js",
+  "module": "es/compare-by.js",
+  "types": "es/compare-by.d.ts",
+  "scripts": {
+    "build": "npm run build:es && npm run build:cjs",
+    "build:es": "tsc -p . -m es2015 --outDir ./es",
+    "build:cjs": "tsc -p . -m commonjs --outDir ./cjs",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "WTFPL",
+  "devDependencies": {
+    "@types/jest": "^22.2.3",
+    "jest": "^22.4.3",
+    "ts-jest": "^22.4.4",
+    "typescript": "^2.8.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/test/**/*.spec.ts"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "compare-by.ts"
+    ],
+    "transform": {
+      "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
+  }
+}
