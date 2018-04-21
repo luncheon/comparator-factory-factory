@@ -1,4 +1,4 @@
-import compareBy from '../compare-by'
+import compareBy from '../index.ts'
 
 describe('nulls', () => {
   test('default', () => {

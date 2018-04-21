@@ -1,19 +1,19 @@
 {
-  "name": "compare-by",
+  "name": "comparing",
   "version": "0.0.0",
-  "description": "",
-  "main": "cjs/compare-by.js",
-  "module": "es/compare-by.js",
-  "types": "es/compare-by.d.ts",
+  "description": "Create a comparison function to be used for sorting arrays.",
+  "main": "index",
+  "module": "index.mjs",
+  "types": "index.d.ts",
+  "keywords": [],
+  "license": "WTFPL",
+  "repository": "luncheon/comparing",
   "scripts": {
     "build": "npm run build:es && npm run build:cjs",
-    "build:es": "tsc -p . -m es2015 --outDir ./es",
-    "build:cjs": "tsc -p . -m commonjs --outDir ./cjs",
+    "build:es": "tsc -p . -m es2015 --outDir ._es && node -e \"require('fs').renameSync('._es/index.js','index.mjs')\"",
+    "build:cjs": "tsc -p . -m commonjs -d",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "WTFPL",
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "jest": "^22.4.3",
@@ -31,7 +31,7 @@
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "compare-by.ts"
+      "index.ts"
     ],
     "transform": {
       "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"

@@ -12,8 +12,8 @@ export type Comparator<T>     = (a: T, b: T) => number
 
 const defaultCollator = new Intl.Collator()
 
-export default function compareBy<T>(...orders: (OrderDefinition<T> | KeyDefinition<T>)[]): Comparator<T>
-export default function compareBy<T>() {
+export default function comparing<T>(...orders: (OrderDefinition<T> | KeyDefinition<T>)[]): Comparator<any>
+export default function comparing<T>() {
   const comparators = createComparators<T>(arguments)
   switch (comparators.length) {
     case 0:   return createComparator()

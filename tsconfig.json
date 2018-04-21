@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es5",
     "moduleResolution": "node",
-    "declaration": true,
     "newLine": "LF",
     "strict": true,
     "noImplicitReturns": true,
@@ -12,6 +11,6 @@
     "types": []
   },
   "include": [
-    "compare-by.ts"
+    "index.ts"
   ]
 }
