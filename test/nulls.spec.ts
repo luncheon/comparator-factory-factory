@@ -1,8 +1,8 @@
-import compareBy from '../index.ts'
+import comparing from './comparing'
 
 describe('nulls', () => {
   test('default', () => {
-    const comparator = compareBy({})
+    const comparator = comparing({})
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(-1)
@@ -12,7 +12,7 @@ describe('nulls', () => {
   })
 
   test('default desc', () => {
-    const comparator = compareBy({ desc: true })
+    const comparator = comparing({ desc: true })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(1)
@@ -22,7 +22,7 @@ describe('nulls', () => {
   })
 
   test('first', () => {
-    const comparator = compareBy({ nulls: 'first' })
+    const comparator = comparing({ nulls: 'first' })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(-1)
@@ -32,7 +32,7 @@ describe('nulls', () => {
   })
 
   test('first desc', () => {
-    const comparator = compareBy({ nulls: 'first', desc: true })
+    const comparator = comparing({ nulls: 'first', desc: true })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(-1)
@@ -42,7 +42,7 @@ describe('nulls', () => {
   })
 
   test('last', () => {
-    const comparator = compareBy({ nulls: 'last' })
+    const comparator = comparing({ nulls: 'last' })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(1)
@@ -52,7 +52,7 @@ describe('nulls', () => {
   })
 
   test('last desc', () => {
-    const comparator = compareBy({ nulls: 'last', desc: true })
+    const comparator = comparing({ nulls: 'last', desc: true })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(1)
@@ -62,7 +62,7 @@ describe('nulls', () => {
   })
 
   test('min', () => {
-    const comparator = compareBy({ nulls: 'min' })
+    const comparator = comparing({ nulls: 'min' })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(-1)
@@ -72,7 +72,7 @@ describe('nulls', () => {
   })
 
   test('min desc', () => {
-    const comparator = compareBy({ nulls: 'min', desc: true })
+    const comparator = comparing({ nulls: 'min', desc: true })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(1)
@@ -82,7 +82,7 @@ describe('nulls', () => {
   })
 
   test('max', () => {
-    const comparator = compareBy({ nulls: 'last' })
+    const comparator = comparing({ nulls: 'last' })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(1)
@@ -92,7 +92,7 @@ describe('nulls', () => {
   })
 
   test('max desc', () => {
-    const comparator = compareBy({ nulls: 'min' })
+    const comparator = comparing({ nulls: 'min' })
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(undefined, '')).toBe(-1)

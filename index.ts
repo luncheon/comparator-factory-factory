@@ -3,9 +3,9 @@ export interface OrderDefinition<T> {
   readonly desc?:     boolean
   readonly nulls?:    NullHandling
   readonly locales?:  string | string[]
-  readonly collator?: Intl.CollatorOptions
+  readonly collator?: Intl.Collator | Intl.CollatorOptions
 }
-export type KeyDefinition<T>  = keyof T | string | number | KeySelector<T>
+export type KeyDefinition<T>  = string | number | KeySelector<T>
 export type KeySelector<T>    = (element: T) => any | undefined
 export type NullHandling      = 'first' | 'last' | 'min' | 'max'
 export type Comparator<T>     = (a: T, b: T) => number
@@ -46,8 +46,16 @@ function createComparators<T>(orders: ArrayLike<OrderDefinition<T> | KeyDefiniti
   return comparators
 }
 
-function createComparator<T>(key?: KeyDefinition<T>, desc?: boolean, nulls?: NullHandling, locales?: string | string[], collatorOptions?: Intl.CollatorOptions): Comparator<T> {
-  const collator = locales || collatorOptions ? new Intl.Collator(locales, collatorOptions) : defaultCollator
+function createComparator<T>(
+  key?:             KeyDefinition<T>,
+  desc?:            boolean,
+  nulls?:           NullHandling,
+  locales?:         string | string[],
+  collatorOptions?: Intl.Collator | Intl.CollatorOptions
+): Comparator<T> {
+  const collator = collatorOptions instanceof Intl.Collator ? collatorOptions :
+    locales || collatorOptions ? new Intl.Collator(locales, collatorOptions) :
+    defaultCollator
   const keySelector = createKeySelector(key)
   const direction = desc ? -1 : 1
   const nullsResult = nulls === 'first' ? -1 : nulls === 'last' ? 1 : direction * (nulls === 'max' ? 1 : -1)
@@ -60,7 +68,7 @@ function createComparator<T>(key?: KeyDefinition<T>, desc?: boolean, nulls?: Nul
       B === undefined ? -nullsResult :
       A === null      ?  nullsResult :
       B === null      ? -nullsResult :
-      direction * (typeof A === 'string' && typeof B === 'string' ? collator!.compare(A, B) : (A < B ? -1 : 1))
+      direction * (typeof A === 'string' && typeof B === 'string' ? collator.compare(A, B) : (A < B ? -1 : 1))
     )
   }
 }
@@ -69,12 +77,14 @@ function createKeySelector<T>(key?: KeyDefinition<T>): KeySelector<T> {
   return (
     key === undefined         ? identity :
     typeof key === 'function' ? key :
-    typeof key === 'number'   ? (element: any) => element[key] :
     createPropertyGetter(String(key))
   )
 }
 
 function createPropertyGetter(path: string): KeySelector<any> {
+  if (!path) {
+    return identity
+  }
   const paths: string[] = []
   {
     let lastIndex = -1
@@ -86,24 +96,20 @@ function createPropertyGetter(path: string): KeySelector<any> {
     }
     paths.push(path.slice(lastIndex + 1))
   }
-  switch (paths.length) {
-    case 0:
-      return identity
-    case 1: {
-      const path = paths[0]
-      return (element: any) => element[path]
-    }
-    default:
-      return (element: any) => {
-        for (const path of paths) {
-          if (element === undefined || element === null) {
-            return
-          }
-          element = element[path]
+  if (paths.length === 1) {
+    const path = paths[0]
+    return (element: any) => element[path]
+  } else {
+    return (element: any) => {
+      for (const path of paths) {
+        if (element === undefined || element === null) {
+          return
         }
-        return element
+        element = element[path]
       }
+      return element
     }
+  }
 }
 
 function identity<T>(x: T): T {
