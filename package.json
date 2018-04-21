@@ -5,27 +5,33 @@
   "main": "index",
   "module": "index.mjs",
   "types": "index.d.ts",
+  "jsdelivr": "index.iife.min.js",
+  "unpkg": "index.iife.min.js",
   "files": [
     "index.js",
     "index.mjs",
-    "index.d.ts"
+    "index.d.ts",
+    "index.iife.min.js"
   ],
   "keywords": [],
   "license": "WTFPL",
   "repository": "luncheon/comparing",
   "scripts": {
-    "clean": "rimraf index.js index.mjs index.d.ts es coverage",
-    "build": "npm run clean && npm run build:es && npm run build:cjs && npm test",
+    "clean": "rimraf index.js index.mjs index.d.ts index.iife.min.js es coverage",
+    "build": "npm run clean && npm run build:es && npm run build:cjs && npm run build:iife && npm test",
     "build:es": "tsc -p . -m es2015 --outDir es && node -e \"require('fs').renameSync('es/index.js','index.mjs')\" && rimraf es",
     "build:cjs": "tsc -p . -m commonjs -d",
+    "build:iife": "rollup -i index.mjs -f iife -n comparing | uglifyjs -m -c join_vars=true -o index.iife.min.js",
     "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "jest": "^22.4.3",
     "rimraf": "^2.6.2",
+    "rollup": "^0.58.1",
     "ts-jest": "^22.4.4",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.1",
+    "uglify-js": "^3.3.22"
   },
   "jest": {
     "testEnvironment": "node",
