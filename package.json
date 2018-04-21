@@ -5,18 +5,25 @@
   "main": "index",
   "module": "index.mjs",
   "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.mjs",
+    "index.d.ts"
+  ],
   "keywords": [],
   "license": "WTFPL",
   "repository": "luncheon/comparing",
   "scripts": {
-    "build": "npm run build:es && npm run build:cjs",
-    "build:es": "tsc -p . -m es2015 --outDir ._es && node -e \"require('fs').renameSync('._es/index.js','index.mjs')\"",
+    "clean": "rimraf index.js index.mjs index.d.ts es coverage",
+    "build": "npm run clean && npm run build:es && npm run build:cjs && npm test",
+    "build:es": "tsc -p . -m es2015 --outDir es && node -e \"require('fs').renameSync('es/index.js','index.mjs')\" && rimraf es",
     "build:cjs": "tsc -p . -m commonjs -d",
     "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "jest": "^22.4.3",
+    "rimraf": "^2.6.2",
     "ts-jest": "^22.4.4",
     "typescript": "^2.8.1"
   },

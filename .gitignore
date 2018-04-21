@@ -1,4 +1,5 @@
 /node_modules/
 /coverage/
-/es/
-/cjs/
+/index.js
+/index.mjs
+/index.d.ts
