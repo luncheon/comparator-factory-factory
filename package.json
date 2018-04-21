@@ -17,10 +17,10 @@
   "license": "WTFPL",
   "repository": "luncheon/comparing",
   "scripts": {
-    "clean": "rimraf index.js index.mjs index.d.ts index.iife.min.js es coverage",
+    "clean": "rimraf index.js index.mjs index.d.ts index.iife.min.js coverage",
     "build": "npm run clean && npm run build:es && npm run build:cjs && npm run build:iife && npm test",
-    "build:es": "tsc -p . -m es2015 --outDir es && node -e \"require('fs').renameSync('es/index.js','index.mjs')\" && rimraf es",
-    "build:cjs": "tsc -p . -m commonjs -d",
+    "build:es": "tsc -p . && node -e \"require('fs').renameSync('index.js','index.mjs')\"",
+    "build:cjs": "rollup -i index.mjs -f cjs -n comparing -o index.js",
     "build:iife": "rollup -i index.mjs -f iife -n comparing | uglifyjs -m -c join_vars=true -o index.iife.min.js",
     "test": "jest"
   },
