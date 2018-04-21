@@ -24,7 +24,7 @@ const users = [
   { id: '06', name: 'Bob',   profile: { age: 15 } },
 ];
 
-users.sort(comparing('profile.age', 'id'));
+users.sort(comparing(x => [x.profile.age, x.id]))
 // => [
 //  { id: '02', name: 'Bob'                         },
 //  { id: '04', name: 'alice', profile: { age: 15 } },
@@ -46,7 +46,7 @@ users.sort(comparing(({ name }) => name, 'id'));
 
 users.sort(comparing(
   { key: 'name', desc: true, nulls: 'first', collator: { sensitivity: 'base' } },
-  { key: 'profile.age', nulls: 'max' },
+  { key: x => x.profile.age, nulls: 'max' },
   'id',
 ));
 // => [
@@ -62,14 +62,18 @@ users.sort(comparing(
 
 ## API
 
-comparing(...orderSpecs) => (a, b) => (-1 | 0 | 1)
+### comparing(...orderSpecs) => (a, b) => (-1 | 0 | 1)
 
-<!-- CollatorOptions
+> _T.B.D._
+
+<!--
+comparing(...orderSpecs) => (a, b) => (-1 | 0 | 1)
+Collator
 https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator -->
 
 ## Limitation
 
-If the element itself of the array is `undefined`, `Array.prototype.sort()` always put the element at the end of the array.  
+`Array.prototype.sort()` always put the `undefined` at the end of the array.  
 This behavior is specified in the [ECMAScript specification](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.11).
 
 ```javascript

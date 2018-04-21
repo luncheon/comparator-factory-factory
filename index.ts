@@ -22,9 +22,7 @@ export default function comparing<T>() {
     case 3:   return (a: T, b: T) => comparators[0](a, b) || comparators[1](a, b) || comparators[2](a, b)
     default:  return (a: T, b: T) => {
       let result = 0
-      for (let i = 0; result === 0 && i < comparators.length; ++i) {
-        result = comparators[i](a, b)
-      }
+      for (let i = 0; i < comparators.length && !(result = comparators[i](a, b)); ++i);
       return result
     }
   }
@@ -35,7 +33,7 @@ function createComparators<T>(orders: ArrayLike<OrderDefinition<T> | KeyDefiniti
   let order: OrderDefinition<T> | KeyDefinition<T>
   for (let i = 0; i < orders.length; ++i) {
     order = orders[i]
-    if (typeof order === 'object') {
+    if (typeof order === 'object' && order) {
       for (const key of Array.isArray(order.key) ? order.key : [order.key]) {
         comparators.push(createComparator(key, order.desc, order.nulls, order.locales, order.collator))
       }
@@ -53,65 +51,41 @@ function createComparator<T>(
   locales?:         string | string[],
   collatorOptions?: Intl.Collator | Intl.CollatorOptions
 ): Comparator<T> {
-  const collator = collatorOptions instanceof Intl.Collator ? collatorOptions :
-    locales || collatorOptions ? new Intl.Collator(locales, collatorOptions) :
-    defaultCollator
-  const keySelector = createKeySelector(key)
+  const collator =
+    collatorOptions instanceof Intl.Collator  ? collatorOptions :
+    locales || collatorOptions                ? new Intl.Collator(locales, collatorOptions) :
+                                                defaultCollator
+  const keySelector =
+    key === undefined || key === null || key === '' ? (term: T)   => term:
+    typeof key === 'function'                       ? (term: T)   => { try { return key(term) } catch {} } :
+                                                      (term: any) => { try { return term[key] } catch {} }
   const direction = desc ? -1 : 1
-  const nullsResult = nulls === 'first' ? -1 : nulls === 'last' ? 1 : direction * (nulls === 'max' ? 1 : -1)
-  return (a: T, b: T) => {
-    const A = keySelector(a)
-    const B = keySelector(b)
+  const nullsResult =
+    nulls === 'first' ? -direction :
+    nulls === 'last'  ?  direction :
+    nulls === 'max'   ?  1 :
+                        -1
+  function compare(a: any, b: any): number {
     return (
-      A === B         ? 0 :
-      A === undefined ?  nullsResult :
-      B === undefined ? -nullsResult :
-      A === null      ?  nullsResult :
-      B === null      ? -nullsResult :
-      direction * (typeof A === 'string' && typeof B === 'string' ? collator.compare(A, B) : (A < B ? -1 : 1))
+      a === b         ? 0 :
+      a === undefined ?  nullsResult :
+      b === undefined ? -nullsResult :
+      a === null      ?  nullsResult :
+      b === null      ? -nullsResult :
+      Array.isArray(a) && Array.isArray(b) ? compareArray(a, b, compare) :
+      typeof a === 'string' && typeof b === 'string' ? collator.compare(a, b) :
+      (a < b ? -1 : 1)
     )
   }
-}
-
-function createKeySelector<T>(key?: KeyDefinition<T>): KeySelector<T> {
-  return (
-    key === undefined         ? identity :
-    typeof key === 'function' ? key :
-    createPropertyGetter(String(key))
-  )
-}
-
-function createPropertyGetter(path: string): KeySelector<any> {
-  if (!path) {
-    return identity
-  }
-  const paths: string[] = []
-  {
-    let lastIndex = -1
-    for (let index = path.indexOf('.'); index !== -1; index = path.indexOf('.', index + 1)) {
-      if (path[index - 1] !== '\\') {
-        paths.push(path.slice(lastIndex + 1, index))
-        lastIndex = index
-      }
-    }
-    paths.push(path.slice(lastIndex + 1))
-  }
-  if (paths.length === 1) {
-    const path = paths[0]
-    return (element: any) => element[path]
-  } else {
-    return (element: any) => {
-      for (const path of paths) {
-        if (element === undefined || element === null) {
-          return
-        }
-        element = element[path]
-      }
-      return element
-    }
+  return (a: T, b: T) => {
+    const result = compare(keySelector(a), keySelector(b))
+    return result && result * direction
   }
 }
 
-function identity<T>(x: T): T {
-  return x
+function compareArray(a: (any | null | undefined)[], b: (any | null | undefined)[], compare: (a: any, b: any) => number) {
+  let result = 0;
+  const length = Math.min(a.length, b.length)
+  for (let i = 0; i < length && !(result = compare(a[i], b[i])); ++i);
+  return result || compare(a.length, b.length)
 }

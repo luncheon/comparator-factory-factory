@@ -8,6 +8,12 @@ describe('readme', () => {
   ))
 
   test('01-01', () => expect(
+    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing(null))
+  ).toEqual(
+    [null, 'A1', 'A10', 'A3', 'A5', 'A7']
+  ))
+
+  test('01-02', () => expect(
     ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing(''))
   ).toEqual(
     [null, 'A1', 'A10', 'A3', 'A5', 'A7']
@@ -35,7 +41,7 @@ describe('readme', () => {
   ]
 
   test('users01', () => expect(
-    users.sort(comparing('profile.age', 'id'))
+    users.sort(comparing(x => [x.profile.age, x.id]))
   ).toEqual([
     { id: '02', name: 'Bob'                         },
     { id: '04', name: 'alice', profile: { age: 15 } },
@@ -46,7 +52,7 @@ describe('readme', () => {
   ]))
 
   test('users01-02', () => expect(
-    users.sort(comparing('UNDEFINED', 'profile.age', 'UNDEFINED', 'id'))
+    users.sort(comparing('UNDEFINED', x => x.profile.age, 'UNDEFINED', 'id'))
   ).toEqual([
     { id: '02', name: 'Bob'                         },
     { id: '04', name: 'alice', profile: { age: 15 } },
@@ -70,7 +76,7 @@ describe('readme', () => {
   test('users03', () => expect(
     users.sort(comparing(
       { key: 'name', desc: true, nulls: 'first', collator: { sensitivity: 'base' } },
-      { key: 'profile.age', nulls: 'max' },
+      { key: x => x.profile.age, nulls: 'max' },
       'id',
     ))
   ).toEqual([
