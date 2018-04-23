@@ -11,7 +11,8 @@
     "index.js",
     "index.mjs",
     "index.d.ts",
-    "index.iife.min.js"
+    "index.iife.min.js",
+    "src"
   ],
   "keywords": [],
   "license": "WTFPL",
@@ -44,7 +45,7 @@
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "index.ts"
+      "src/**/*.ts"
     ],
     "transform": {
       "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
