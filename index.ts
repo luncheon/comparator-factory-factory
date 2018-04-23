@@ -1,5 +1,5 @@
 export interface Comparing {
-  <T>(...rules: (ComparisonRule<T> | ComparisonKey<T>)[]): Comparator<any>
+  <T = any>(...rules: (ComparisonRule<T> | ComparisonKey<T>)[]): Comparator<T>
   factory(baseRule: ComparisonRule<any>): Comparing
 }
 export interface ComparisonRule<T> {
