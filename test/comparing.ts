@@ -1,2 +1,3 @@
 import comparing from '../index.ts'
-export default comparing
+import { Comparing } from '..'
+export default comparing as Comparing
