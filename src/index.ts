@@ -1,18 +1,19 @@
 export interface Comparing {
   <T = any>(...rules: (ComparisonRule<T> | ComparisonKey<T>)[]): Comparator<T>
+  rule: ComparisonRule<any>
   factory(baseRule: ComparisonRule<any>): Comparing
 }
 export interface ComparisonRule<T> {
   readonly key?:              ComparisonKey<T> | ComparisonKey<T>[]
   readonly keyValueSelector?: ComparisonKeyValueSelector<T>
   readonly desc?:             boolean
-  readonly nulls?:            NullsHandling
+  readonly specials?:         SpecialHandling[]
   readonly locales?:          string | string[]
   readonly collator?:         Intl.CollatorOptions & { compare?(a: string, b: string): number }
 }
+export type SpecialHandling = [undefined | null | number | string | boolean | object | ((value?: any) => any | undefined), 'first' | 'last' | 'min' | 'max']
 export type ComparisonKey<T>              = string | number | ((obj: T) => any | null | undefined)
 export type ComparisonKeyValueSelector<T> = (key?: ComparisonKey<T>) => (obj: T) => any
-export type NullsHandling                 = 'first' | 'last' | 'min' | 'max'
 export type Comparator<T>                 = (a: T, b: T) => number
 
 const defaultCollator = Intl.Collator()
@@ -42,6 +43,7 @@ function comparingFactory(baseRule: ComparisonRule<any>): Comparing {
       }
     }
   } as Comparing
+  comparing.rule = baseRule
   comparing.factory = newRule => comparingFactory(mergeRule(baseRule, newRule))
   return comparing
 }
@@ -65,35 +67,57 @@ function createComparators<T>(baseRule: ComparisonRule<T>, rules: ArrayLike<Comp
 
 function createComparator<T>(key?: ComparisonKey<T>, rule?: ComparisonRule<T>): Comparator<T> {
   rule = rule || {}
-  const { nulls, locales, collator } = rule
+  const { locales, collator } = rule
   const stringComparator =
     collator && collator.compare ?  collator as { compare(a: string, b: string): number } :
     locales || collator          ?  Intl.Collator(locales, collator) :
                                     defaultCollator
   const direction = rule.desc ? -1 : 1
-  const nullsResult =
-    nulls === 'first' ? -direction :
-    nulls === 'last'  ?  direction :
-    nulls === 'max'   ?  1 :
-                        -1
+  const specialComparator = createSpecialsComparator(rule.specials, rule.desc)
   const keyValueSelector = (rule.keyValueSelector || defaultKeyValueSelector)(key)
-  function compareValue(a: any | null | undefined, b: any | null | undefined): number {
+  function compareValue(a?: any, b?: any): number {
+    let result: number | undefined
     return (
       a === b         ? 0 :
-      a === undefined ?  nullsResult :
-      b === undefined ? -nullsResult :
-      a === null      ?  nullsResult :
-      b === null      ? -nullsResult :
-      a !== a         ?  b !== b ? 0 : nullsResult : // NaN !== NaN
-      b !== b         ?               -nullsResult :
+      (result = specialComparator && specialComparator(a, b)) !== undefined ? result :
+      a === undefined ? -1 :
+      b === undefined ?  1 :
+      a === null      ? -1 :
+      b === null      ?  1 :
+      a !== a         ?  b !== b ? 0 : -1 : // NaN !== NaN
+      b !== b         ?                 1 :
       Array.isArray(a) && Array.isArray(b) ? compareArray(a, b, compareValue) :
-      typeof a === 'string' && typeof b === 'string' ? stringComparator.compare(a, b) :
+      typeof a === 'string' || typeof b === 'string' ? stringComparator.compare(String(a), String(b)) :
       a < b ? -1 : 1
     )
   }
   return (a: T, b: T) => {
     const result = compareValue(keyValueSelector(a), keyValueSelector(b))
     return result && result * direction
+  }
+}
+
+const ascSpecialsHandlings  = { first: -1, last:  1, min: -1, max: 1 }
+const descSpecialsHandlings = { first:  1, last: -1, min: -1, max: 1 }
+
+function createSpecialsComparator(specials?: SpecialHandling[], desc?: boolean) {
+  if (!specials || !specials.length) {
+    return
+  }
+  const specialsHandlings = desc ? descSpecialsHandlings : ascSpecialsHandlings
+  const comparators = specials
+    .map(([special, handling]) => {
+      const isSpecial =
+        typeof special === 'function' ? special :
+        special !== special           ? (value?: any) => value !== value :
+                                        (value?: any) => value === special
+      const leftResult = specialsHandlings[handling]
+      return (a?: any, b?: any) => isSpecial(a) ? isSpecial(b) ? 0 : leftResult : isSpecial(b) ? -leftResult : undefined
+    })
+  return (a?: any, b?: any) => {
+    let result: number | undefined
+    for (let i = 0; i < comparators.length && (result = comparators[i](a, b)) === undefined; ++i);
+    return result
   }
 }
 

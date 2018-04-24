@@ -20,13 +20,13 @@ describe('readme', () => {
   ))
 
   test('02', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ nulls: 'last', collator: { numeric: true } }))
+    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ specials: [[null, 'last']], collator: { numeric: true } }))
   ).toEqual(
     ['A1', 'A3', 'A5', 'A7', 'A10', null]
   ))
 
   test('02-01', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ nulls: 'last', collator: new Intl.Collator(undefined, { numeric: true }) }))
+    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ specials: [[null, 'last']], collator: new Intl.Collator(undefined, { numeric: true }) }))
   ).toEqual(
     ['A1', 'A3', 'A5', 'A7', 'A10', null]
   ))
@@ -75,8 +75,8 @@ describe('readme', () => {
 
   test('users03', () => expect(
     users.sort(comparing(
-      { key: 'name', desc: true, nulls: 'first', collator: { sensitivity: 'base' } },
-      { key: x => x.profile.age, nulls: 'max' },
+      { key: 'name', desc: true, specials: [[undefined, 'first']], collator: { sensitivity: 'base' } },
+      { key: x => x.profile.age, specials: [[undefined, 'max']] },
       'id',
     ))
   ).toEqual([
