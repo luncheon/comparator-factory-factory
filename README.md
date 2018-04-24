@@ -34,6 +34,26 @@ users.sort(comparing(x => [x.profile.age, x.id]))
 //  { id: '05', name: 'bob',   profile: { age: 18 } },
 // ]
 
+users.sort(comparing(x => [x.profile.age, x.id]).reversed())
+// => [
+//  { id: '05', name: 'bob',   profile: { age: 18 } },
+//  { id: '01', name: 'Alice', profile: { age: 17 } },
+//  { id: '03',                profile: { age: 16 } },
+//  { id: '06', name: 'Bob',   profile: { age: 15 } },
+//  { id: '04', name: 'alice', profile: { age: 15 } },
+//  { id: '02', name: 'Bob'                         },
+// ]
+
+users.sort(comparing(x => [x.profile.age, x.id]).reversed(false))
+// => [
+//  { id: '02', name: 'Bob'                         },
+//  { id: '04', name: 'alice', profile: { age: 15 } },
+//  { id: '06', name: 'Bob',   profile: { age: 15 } },
+//  { id: '03',                profile: { age: 16 } },
+//  { id: '01', name: 'Alice', profile: { age: 17 } },
+//  { id: '05', name: 'bob',   profile: { age: 18 } },
+// ]
+
 users.sort(comparing(({ name }) => name, 'id'));
 // => [
 //  { id: '03',                profile: { age: 16 } },
@@ -62,12 +82,16 @@ users.sort(comparing(
 
 ## API
 
-### comparing(...orderSpecs) => (a, b) => (-1 | 0 | 1)
+### comparing(...comparisonRules) => reversibleComparator
+### reversibleComparator(a, b) => -1 | 0 | 1
+### reversibleComparator.reversed() => reversedReversibleComparator
+### reversibleComparator.reversed(false) => reversibleComparator
+### comparing.factory(comparisonRule) => comparing
 
 > _T.B.D._
 
 <!--
-comparing(...orderSpecs) => (a, b) => (-1 | 0 | 1)
+comparing(...comparisonRules) => (a, b) => (-1 | 0 | 1)
 Collator
 https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator -->
 
@@ -91,7 +115,7 @@ This behavior is specified in the [ECMAScript specification](http://www.ecma-int
 ```
 
 
-## Similar libraries
+## Similar modules
 
 * [compare-func](https://www.npmjs.com/package/compare-func)
 * [default-compare](https://www.npmjs.com/package/default-compare)

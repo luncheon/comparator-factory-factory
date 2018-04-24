@@ -62,6 +62,50 @@ describe('readme', () => {
     { id: '05', name: 'bob',   profile: { age: 18 } },
   ]))
 
+  test('users01-03', () => expect(
+    users.sort(comparing(x => [x.profile.age, x.id]).reversed())
+  ).toEqual([
+    { id: '05', name: 'bob',   profile: { age: 18 } },
+    { id: '01', name: 'Alice', profile: { age: 17 } },
+    { id: '03',                profile: { age: 16 } },
+    { id: '06', name: 'Bob',   profile: { age: 15 } },
+    { id: '04', name: 'alice', profile: { age: 15 } },
+    { id: '02', name: 'Bob'                         },
+  ]))
+
+  test('users01-03', () => expect(
+    users.sort(comparing(x => [x.profile.age, x.id]).reversed(false))
+  ).toEqual([
+    { id: '02', name: 'Bob'                         },
+    { id: '04', name: 'alice', profile: { age: 15 } },
+    { id: '06', name: 'Bob',   profile: { age: 15 } },
+    { id: '03',                profile: { age: 16 } },
+    { id: '01', name: 'Alice', profile: { age: 17 } },
+    { id: '05', name: 'bob',   profile: { age: 18 } },
+  ]))
+
+  test('users01-04', () => expect(
+    users.sort(comparing(x => [x.profile.age, x.id]).reversed().reversed())
+  ).toEqual([
+    { id: '02', name: 'Bob'                         },
+    { id: '04', name: 'alice', profile: { age: 15 } },
+    { id: '06', name: 'Bob',   profile: { age: 15 } },
+    { id: '03',                profile: { age: 16 } },
+    { id: '01', name: 'Alice', profile: { age: 17 } },
+    { id: '05', name: 'bob',   profile: { age: 18 } },
+  ]))
+
+  test('users01-05', () => expect(
+    users.sort(comparing(x => [x.profile.age, x.id]).reversed().reversed(false))
+  ).toEqual([
+    { id: '05', name: 'bob',   profile: { age: 18 } },
+    { id: '01', name: 'Alice', profile: { age: 17 } },
+    { id: '03',                profile: { age: 16 } },
+    { id: '06', name: 'Bob',   profile: { age: 15 } },
+    { id: '04', name: 'alice', profile: { age: 15 } },
+    { id: '02', name: 'Bob'                         },
+  ]))
+
   test('users02', () => expect(
     users.sort(comparing(({ name }) => name, 'id'))
   ).toEqual([

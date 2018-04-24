@@ -14,7 +14,15 @@
     "index.iife.min.js",
     "src"
   ],
-  "keywords": [],
+  "keywords": [
+    "compare",
+    "comparator",
+    "comparison",
+    "compare-func",
+    "array",
+    "sort",
+    "intl"
+  ],
   "license": "WTFPL",
   "repository": "luncheon/comparing",
   "scripts": {

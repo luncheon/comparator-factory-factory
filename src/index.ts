@@ -1,5 +1,5 @@
 export interface Comparing {
-  <T = any>(...rules: (ComparisonRule<T> | ComparisonKey<T>)[]): Comparator<T>
+  <T = any>(...rules: (ComparisonRule<T> | ComparisonKey<T>)[]): ReversibleComparator<T>
   rule: ComparisonRule<any>
   factory(baseRule: ComparisonRule<any>): Comparing
 }
@@ -15,6 +15,7 @@ export type SpecialHandling = [undefined | null | number | string | boolean | ob
 export type ComparisonKey<T>              = string | number | ((obj: T) => any | null | undefined)
 export type ComparisonKeyValueSelector<T> = (key?: ComparisonKey<T>) => (obj: T) => any
 export type Comparator<T>                 = (a: T, b: T) => number
+export type ReversibleComparator<T>       = Comparator<T> & { reversed(reversed?: boolean): ReversibleComparator<T> }
 
 const defaultCollator = Intl.Collator()
 
@@ -42,10 +43,17 @@ function comparingFactory(baseRule: ComparisonRule<any>): Comparing {
         return result
       }
     }
+  }
+  const reversible = function<T>() {
+    const comparator = comparing.apply(undefined, arguments) as ReversibleComparator<T>
+    const reversedComparator = ((a: T, b: T) => -comparator(a, b)) as ReversibleComparator<T>
+    comparator.reversed = (reversed = true) => reversed ? reversedComparator : comparator
+    reversedComparator.reversed = (reversed = true) => reversed ? comparator : reversedComparator
+    return comparator
   } as Comparing
-  comparing.rule = baseRule
-  comparing.factory = newRule => comparingFactory(mergeRule(baseRule, newRule))
-  return comparing
+  reversible.rule = baseRule
+  reversible.factory = newRule => comparingFactory(mergeRule(baseRule, newRule))
+  return reversible
 }
 
 function createComparators<T>(baseRule: ComparisonRule<T>, rules: ArrayLike<ComparisonRule<T> | ComparisonKey<T>>): Comparator<T>[] {
