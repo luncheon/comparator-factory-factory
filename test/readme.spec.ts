@@ -13,12 +13,6 @@ describe('readme', () => {
     [null, 'A1', 'A10', 'A3', 'A5', 'A7']
   ))
 
-  test('01-02', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing(''))
-  ).toEqual(
-    [null, 'A1', 'A10', 'A3', 'A5', 'A7']
-  ))
-
   test('02', () => expect(
     ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ specials: [[null, 'last']], collator: { numeric: true } }))
   ).toEqual(
