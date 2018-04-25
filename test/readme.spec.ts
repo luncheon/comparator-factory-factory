@@ -2,25 +2,33 @@ import comparing from './comparing'
 
 describe('readme', () => {
   test('01', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing())
+    ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparing())
   ).toEqual(
-    [null, 'A1', 'A10', 'A3', 'A5', 'A7']
+    [null, 'A1', 'A10', 'a3', 'A3', 'A5', 'A7']
   ))
 
   test('01-01', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing(null))
+    ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparing(null))
   ).toEqual(
-    [null, 'A1', 'A10', 'A3', 'A5', 'A7']
+    [null, 'A1', 'A10', 'a3', 'A3', 'A5', 'A7']
   ))
 
-  test('02', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ specials: [[null, 'last']], collator: { numeric: true } }))
-  ).toEqual(
-    ['A1', 'A3', 'A5', 'A7', 'A10', null]
-  ))
+  test('02', () => {
+    const comparingNumericUpperFirst = comparing.rule({ specials: [[null, 'last']], collator: { caseFirst: 'upper', numeric: true } })
+    expect(
+      ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst())
+    ).toEqual(
+      ['A1', 'A3', 'a3', 'A5', 'A7', 'A10', null]
+    )
+    expect(
+      ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst().reversed())
+    ).toEqual(
+      [null, 'A10', 'A7', 'A5', 'a3', 'A3', 'A1']
+    )
+  })
 
   test('02-01', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ specials: [[null, 'last']], collator: new Intl.Collator(undefined, { numeric: true }) }))
+    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing.rule({ specials: [[null, 'last']], collator: new Intl.Collator(undefined, { numeric: true }) })())
   ).toEqual(
     ['A1', 'A3', 'A5', 'A7', 'A10', null]
   ))
@@ -46,7 +54,18 @@ describe('readme', () => {
   ]))
 
   test('users01-02', () => expect(
-    users.sort(comparing('UNDEFINED', x => x.profile.age, 'UNDEFINED', 'id'))
+    users.sort(comparing(x => x.profile.age, x => x.UNDEFINED, x => x.id))
+  ).toEqual([
+    { id: '02', name: 'Bob'                         },
+    { id: '04', name: 'alice', profile: { age: 15 } },
+    { id: '06', name: 'Bob',   profile: { age: 15 } },
+    { id: '03',                profile: { age: 16 } },
+    { id: '01', name: 'Alice', profile: { age: 17 } },
+    { id: '05', name: 'bob',   profile: { age: 18 } },
+  ]))
+
+  test('users01-02', () => expect(
+    users.sort(comparing(x => x.UNDEFINED, x => x.profile.age, x => x.UNDEFINED, x => x.id))
   ).toEqual([
     { id: '02', name: 'Bob'                         },
     { id: '04', name: 'alice', profile: { age: 15 } },
@@ -101,7 +120,7 @@ describe('readme', () => {
   ]))
 
   test('users02', () => expect(
-    users.sort(comparing(({ name }) => name, 'id'))
+    users.sort(comparing(({ name }) => name, ({ id }) => id))
   ).toEqual([
     { id: '03',                profile: { age: 16 } },
     { id: '04', name: 'alice', profile: { age: 15 } },
@@ -112,11 +131,13 @@ describe('readme', () => {
   ]))
 
   test('users03', () => expect(
-    users.sort(comparing(
-      { key: 'name', desc: true, specials: [[undefined, 'first']], collator: { sensitivity: 'base' } },
-      { key: x => x.profile.age, specials: [[undefined, 'max']] },
-      'id',
-    ))
+    users.sort(
+      comparing
+        .rule({ specials: [[undefined, 'last']], collator: { sensitivity: 'base' } })(x => x.name)
+        .reversed()
+        .or(comparing.rule({ specials: [[undefined, 'last']] })(x => x.profile.age))
+        .or(comparing(x => x.id))
+    )
   ).toEqual([
     { id: '03',                profile: { age: 16 } },
     { id: '06', name: 'Bob',   profile: { age: 15 } },

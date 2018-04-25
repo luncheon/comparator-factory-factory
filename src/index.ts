@@ -1,53 +1,51 @@
-export interface Comparing {
-  <T = any>(...rules: (ComparisonRule<T> | ComparisonKey<T>)[]): ReversibleComparator<T>
-  rule: ComparisonRule<any>
-  factory(baseRule: ComparisonRule<any>): Comparing
+export interface ComparatorFactory<K> {
+  <T = any>(...keys: K[]): Comparator<T>
+  resolvedRule: ComparisonRule<K>
+  rule<Key = K>(rule: ComparisonRule<Key>): ComparatorFactory<Key>
 }
-export interface ComparisonRule<T> {
-  readonly key?:              ComparisonKey<T> | ComparisonKey<T>[]
-  readonly keyValueSelector?: ComparisonKeyValueSelector<T>
-  readonly desc?:             boolean
-  readonly specials?:         SpecialHandling[]
-  readonly locales?:          string | string[]
-  readonly collator?:         Intl.CollatorOptions | { compare: Comparator<string> }
+
+export interface Comparator<T> {
+  (a: T, b: T): number
+  reversed(reversed?: boolean): Comparator<T>
+  or(another: (a: T, b: T) => number): Comparator<T>
 }
-export type SpecialHandling               = [undefined | null | number | string | boolean | object | ((value?: any) => any | undefined), 'first' | 'last' | 'min' | 'max']
-export type ComparisonKey<T>              = string | number | ((obj: T) => any | null | undefined)
-export type ComparisonKeyValueSelector<T> = (key?: ComparisonKey<T>) => (obj: T) => any
-export type Comparator<T>                 = (a: T, b: T) => number
-export type ReversibleComparator<T>       = Comparator<T> & { reversed(reversed?: boolean): ReversibleComparator<T> }
 
-export default comparingFactory({})
+export interface ComparisonRule<K> {
+  readonly selector?: (key: K) => (obj: any) => any
+  readonly desc?:     boolean
+  readonly specials?: SpecialHandling[]
+  readonly locales?:  string | string[]
+  readonly collator?: Intl.CollatorOptions | { compare(a: string, b: string): number }
+}
 
-function comparingFactory(baseRule: ComparisonRule<any>): Comparing {
+export type SpecialHandling = [undefined | null | number | string | boolean | object | ((value?: any) => any | undefined), 'first' | 'last' | 'min' | 'max']
+
+export default createComparatorFactory<(obj: any) => any>({
+  selector: key => obj => { try { return key(obj) } catch {} }
+})
+
+function createComparatorFactory<K>(rule: ComparisonRule<K>): ComparatorFactory<K> {
   const comparing = function<T>() {
-    const comparator = createComparator<T>(baseRule, arguments) as ReversibleComparator<T>
-    const reversedComparator = ((a: T, b: T) => -comparator(a, b)) as ReversibleComparator<T>
-    comparator.reversed = (reversed = true) => reversed ? reversedComparator : comparator
-    reversedComparator.reversed = (reversed = true) => reversed ? comparator : reversedComparator
-    return comparator
-  } as Comparing
-  comparing.rule = baseRule
-  comparing.factory = newRule => comparingFactory(mergeRule(baseRule, newRule))
+    return addComparatorFeatures(createComparator<T, K>(rule, arguments))
+  } as ComparatorFactory<K>
+  comparing.resolvedRule = rule
+  comparing.rule = newRule => createComparatorFactory(mergeRule(rule, newRule))
   return comparing
 }
 
-function createComparator<T>(baseRule: ComparisonRule<T>, rules: ArrayLike<ComparisonRule<T> | ComparisonKey<T>>): Comparator<T> {
-  const comparators: Comparator<T>[] = []
-  let rule: ComparisonRule<T> | ComparisonKey<T>
-  for (let i = 0; i < rules.length; ++i) {
-    rule = rules[i]
-    if (typeof rule === 'object' && rule) {
-      rule = mergeRule(baseRule, rule)
-      for (const key of Array.isArray(rule.key) ? rule.key : [rule.key]) {
-        comparators.push(_createComparator(key, rule))
-      }
-    } else {
-      comparators.push(_createComparator(rule, baseRule))
-    }
+function addComparatorFeatures<T>(comparator: (a: T, b: T) => number): Comparator<T> {
+  (comparator as Comparator<T>).reversed = (reversed = true) => reversed ? addComparatorFeatures((a, b) => -comparator(a, b)) : comparator as Comparator<T>;
+  (comparator as Comparator<T>).or       = another => addComparatorFeatures((a, b) => comparator(a, b) || another(a, b))
+  return comparator as Comparator<T>
+}
+
+function createComparator<T, K>(rule: ComparisonRule<K>, keys: ArrayLike<K>): (a: T, b: T) => number {
+  const comparators: ((a: T, b: T) => number)[] = []
+  for (let i = 0; i < keys.length; ++i) {
+    comparators.push(_createComparator(rule, keys[i]))
   }
   switch (comparators.length) {
-    case 0:   return _createComparator()
+    case 0:   return _createComparator(rule)
     case 1:   return comparators[0]
     case 2:   return (a: T, b: T) => comparators[0](a, b) || comparators[1](a, b)
     case 3:   return (a: T, b: T) => comparators[0](a, b) || comparators[1](a, b) || comparators[2](a, b)
@@ -59,14 +57,13 @@ function createComparator<T>(baseRule: ComparisonRule<T>, rules: ArrayLike<Compa
   }
 }
 
-function _createComparator<T>(key?: ComparisonKey<T>, rule?: ComparisonRule<T>): Comparator<T> {
-  rule = rule || {}
-  const keyValueSelector = (rule.keyValueSelector || defaultKeyValueSelector)(key)
-  const direction = rule.desc ? -1 : 1
+function _createComparator<T, K>(rule: ComparisonRule<K>, key?: K): (a: T, b: T) => number {
+  const selector        = key ? rule.selector!(key) : (obj: T) => obj as any
+  const direction       = rule.desc ? -1 : 1
   const compareSpecials = createSpecialsComparator(rule.specials, rule.desc)
-  const collator = rule.collator as Intl.CollatorOptions & { compare(a: string, b: string): number }
-  const compareString = collator && typeof collator.compare === 'function' ? collator : Intl.Collator(rule.locales, collator)
-  const compareValue = (a?: any, b?: any): number => {
+  const collator        = rule.collator as Intl.CollatorOptions & { compare(a: string, b: string): number }
+  const compareString   = collator && typeof collator.compare === 'function' ? collator : Intl.Collator(rule.locales, collator)
+  const compareValue    = (a: any, b: any): number => {
     let result: number | undefined
     return (
       a === b         ? 0 :
@@ -77,25 +74,18 @@ function _createComparator<T>(key?: ComparisonKey<T>, rule?: ComparisonRule<T>):
       b === null      ?  1 :
       a !== a         ?  b !== b ? 0 : -1 : // NaN !== NaN
       b !== b         ?                 1 :
-      Array.isArray(a) && Array.isArray(b) ? compareArray(a, b, compareValue) :
+      Array.isArray(a)      && Array.isArray(b)      ? compareArray(a, b, compareValue) :
       typeof a === 'string' || typeof b === 'string' ? compareString.compare(String(a), String(b)) :
       a < b ? -1 : 1
     )
   }
   return (a: T, b: T) => {
-    const result = compareValue(keyValueSelector(a), keyValueSelector(b))
+    const result = compareValue(selector(a), selector(b))
     return result && result * direction
   }
 }
 
-function defaultKeyValueSelector<T>(key?: ComparisonKey<T>): (obj: T) => any {
-  return (
-    key === undefined || key === null ? (obj: T) => obj :
-    typeof key === 'function'         ? (obj: T) => { try { return key(obj) } catch {} } :
-                                        (obj: T) => { try { return (obj as any)[key] } catch {} }
-  )
-}
-
+// will be multiplied by (desc ? -1 : 1)
 const ascSpecialsHandlings  = { first: -1, last:  1, min: -1, max: 1 }
 const descSpecialsHandlings = { first:  1, last: -1, min: -1, max: 1 }
 
@@ -126,14 +116,14 @@ function compareArray(a: (any | null | undefined)[], b: (any | null | undefined)
   return result || compare(a.length, b.length)
 }
 
-function mergeRule<T>(rule1: ComparisonRule<any>, rule2: ComparisonRule<any>): ComparisonRule<T> {
+function mergeRule<K>(rule1: ComparisonRule<any>, rule2: ComparisonRule<K>): ComparisonRule<K> {
   return assignRule(assignRule({}, rule1), rule2)
 }
 
-function assignRule(destination: any, source: ComparisonRule<any>): ComparisonRule<any> {
+function assignRule<K>(destination: any, source: ComparisonRule<K>): ComparisonRule<K> {
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
-      destination[key] = source[key as keyof ComparisonRule<any>]
+      destination[key] = source[key as keyof ComparisonRule<K>]
     }
   }
   return destination

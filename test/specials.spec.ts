@@ -2,7 +2,7 @@ import comparing from './comparing'
 
 describe('specials', () => {
   test('default', () => {
-    const comparator = comparing({})
+    const comparator = comparing()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -21,7 +21,7 @@ describe('specials', () => {
   })
 
   test('default desc', () => {
-    const comparator = comparing({ desc: true })
+    const comparator = comparing.rule({ desc: true })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -40,7 +40,7 @@ describe('specials', () => {
   })
 
   test('null first', () => {
-    const comparator = comparing({ specials: [[null, 'first']] })
+    const comparator = comparing.rule({ specials: [[null, 'first']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -59,7 +59,7 @@ describe('specials', () => {
   })
 
   test('null first desc', () => {
-    const comparator = comparing({ specials: [[null, 'first']], desc: true })
+    const comparator = comparing.rule({ specials: [[null, 'first']], desc: true })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -78,7 +78,7 @@ describe('specials', () => {
   })
 
   test('NaN first null first', () => {
-    const comparator = comparing({ specials: [[NaN, 'first'], [null, 'first']] })
+    const comparator = comparing.rule({ specials: [[NaN, 'first'], [null, 'first']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -97,7 +97,7 @@ describe('specials', () => {
   })
 
   test('NaN first null first desc', () => {
-    const comparator = comparing({ specials: [[NaN, 'first'], [null, 'first']], desc: true })
+    const comparator = comparing.rule({ specials: [[NaN, 'first'], [null, 'first']], desc: true })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -116,7 +116,7 @@ describe('specials', () => {
   })
 
   test('null last', () => {
-    const comparator = comparing({ specials: [[null, 'last']] })
+    const comparator = comparing.rule({ specials: [[null, 'last']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -135,7 +135,7 @@ describe('specials', () => {
   })
 
   test('null last desc', () => {
-    const comparator = comparing({ specials: [[null, 'last']], desc: true })
+    const comparator = comparing.rule({ specials: [[null, 'last']], desc: true })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -154,7 +154,7 @@ describe('specials', () => {
   })
 
   test('null min', () => {
-    const comparator = comparing({ specials: [[null, 'min']] })
+    const comparator = comparing.rule({ specials: [[null, 'min']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -173,7 +173,7 @@ describe('specials', () => {
   })
 
   test('min desc', () => {
-    const comparator = comparing({ specials: [[null, 'min']], desc: true })
+    const comparator = comparing.rule({ specials: [[null, 'min']], desc: true })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -192,7 +192,7 @@ describe('specials', () => {
   })
 
   test('null max', () => {
-    const comparator = comparing({ specials: [[null, 'max']] })
+    const comparator = comparing.rule({ specials: [[null, 'max']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -211,7 +211,7 @@ describe('specials', () => {
   })
 
   test('null max desc', () => {
-    const comparator = comparing({ specials: [[null, 'max']], desc: true })
+    const comparator = comparing.rule({ specials: [[null, 'max']], desc: true })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)

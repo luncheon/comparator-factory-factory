@@ -3,18 +3,36 @@
 Create a comparison function to be used for sorting arrays.
 
 
+## Install
+
+```bash
+T.B.D.
+```
+
 ## Usage & Examples
 
 ```javascript
 import comparing from 'comparing';
 // const comparing = require('comparing');
 
-['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing());
-// => [null, 'A1', 'A10', 'A3', 'A5', 'A7']
+['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparing());
+// => [null, 'A1', 'A10', 'a3', 'A3', 'A5', 'A7']
+```
 
-['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing({ specials: [[null, 'last']], collator: { numeric: true } }))
-// => ['A1', 'A3', 'A5', 'A7', 'A10', null]
+```javascript
+const comparingNumericUpperFirst = comparing.rule({
+  specials: [[null, 'last']],
+  collator: { caseFirst: 'upper', numeric: true },
+});
 
+['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst());
+// => ['A1', 'A3', 'a3', 'A5', 'A7', 'A10', null]
+
+['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst().reversed());
+// => [null, 'A10', 'A7', 'A5', 'a3', 'A3', 'A1']
+```
+
+```javascript
 const users = [
   { id: '01', name: 'Alice', profile: { age: 17 } },
   { id: '02', name: 'Bob'                         },
@@ -34,41 +52,13 @@ users.sort(comparing(x => [x.profile.age, x.id]))
 //  { id: '05', name: 'bob',   profile: { age: 18 } },
 // ]
 
-users.sort(comparing(x => [x.profile.age, x.id]).reversed())
-// => [
-//  { id: '05', name: 'bob',   profile: { age: 18 } },
-//  { id: '01', name: 'Alice', profile: { age: 17 } },
-//  { id: '03',                profile: { age: 16 } },
-//  { id: '06', name: 'Bob',   profile: { age: 15 } },
-//  { id: '04', name: 'alice', profile: { age: 15 } },
-//  { id: '02', name: 'Bob'                         },
-// ]
-
-users.sort(comparing(x => [x.profile.age, x.id]).reversed(false))
-// => [
-//  { id: '02', name: 'Bob'                         },
-//  { id: '04', name: 'alice', profile: { age: 15 } },
-//  { id: '06', name: 'Bob',   profile: { age: 15 } },
-//  { id: '03',                profile: { age: 16 } },
-//  { id: '01', name: 'Alice', profile: { age: 17 } },
-//  { id: '05', name: 'bob',   profile: { age: 18 } },
-// ]
-
-users.sort(comparing(({ name }) => name, 'id'));
-// => [
-//  { id: '03',                profile: { age: 16 } },
-//  { id: '04', name: 'alice', profile: { age: 15 } },
-//  { id: '01', name: 'Alice', profile: { age: 17 } },
-//  { id: '05', name: 'bob',   profile: { age: 18 } },
-//  { id: '02', name: 'Bob'                         },
-//  { id: '06', name: 'Bob',   profile: { age: 15 } },
-// ]
-
-users.sort(comparing(
-  { key: 'name', desc: true, specials: [[undefined, 'first']], collator: { sensitivity: 'base' } },
-  { key: x => x.profile.age, specials: [[undefined, 'max']] },
-  'id',
-));
+users.sort(
+  comparing
+    .rule({ specials: [[undefined, 'last']], collator: { sensitivity: 'base' } })(x => x.name)
+    .reversed()
+    .or(comparing.rule({ specials: [[undefined, 'last']] })(x => x.profile.age))
+    .or(comparing(x => x.id))
+);
 // => [
 //  { id: '03',                profile: { age: 16 } },
 //  { id: '06', name: 'Bob',   profile: { age: 15 } },
@@ -82,16 +72,19 @@ users.sort(comparing(
 
 ## API
 
-### comparing(...comparisonRules) => reversibleComparator
-### reversibleComparator(a, b) => -1 | 0 | 1
-### reversibleComparator.reversed() => reversedReversibleComparator
-### reversibleComparator.reversed(false) => reversibleComparator
-### comparing.factory(comparisonRule) => comparing
-
 > _T.B.D._
 
+### comparing
+
+#### comparing.rule(comparisonRule) => comparing
+#### comparing(...keys) => comparator
+
+### comparator
+#### comparator(a, b) => number
+#### comparator.reversed(really?) => comparator
+#### comparator.or(anotherComparator) => comparator
+
 <!--
-comparing(...comparisonRules) => (a, b) => (-1 | 0 | 1)
 Collator
 https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator -->
 
@@ -101,16 +94,23 @@ https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Colla
 This behavior is specified in the [ECMAScript specification](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.11).
 
 ```javascript
-[{ id: 3 }, { id: 1 }, { id: undefined }, { id: 7 }].sort(comparing({ key: 'id', specials: [[undefined, 'first']] }))
+const compare = comparing.rule({ specials: [[undefined, 'first'], [null, 'first'], [NaN, 'first']] });
+
+[{ id: 3 }, { id: 1 }, { id: undefined }, { id: 7 }].sort(compare(x => x.id));
 // => [{ id: undefined }, { id: 1 }, { id: 3 }, { id: 7 }]
-// It's OK.
+// As expected.
 
-[3, 1, null, 7].sort(comparing({ specials: [[null, 'first']] }))
+[3, 1, null, 7].sort(compare());
 // => [null, 1, 3, 7]
-// It's OK.
+// As expected.
 
-[3, 1, undefined, 7].sort(comparing({ specials: [[undefined, 'first']] }))
+[3, 1, NaN, 7].sort(compare());
+// => [NaN, 1, 3, 7]
+// As expected.
+
+[3, 1, undefined, 7].sort(compare());
 // => [1, 3, 7, undefined]
+// NOT as expected.
 // The expected result is [undefined, 1, 3, 7] but `undefined` is always placed at the end...
 ```
 
