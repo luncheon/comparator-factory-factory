@@ -28,7 +28,7 @@ describe('readme', () => {
   })
 
   test('02-01', () => expect(
-    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing.rule({ specials: [[null, 'last']], collator: new Intl.Collator(undefined, { numeric: true }) })())
+    ['A5', 'A1', null, 'A3', 'A10', 'A7'].sort(comparing.rule({ specials: [[null, 'last']], collator: Intl.Collator(undefined, { numeric: true }) })())
   ).toEqual(
     ['A1', 'A3', 'A5', 'A7', 'A10', null]
   ))
@@ -146,4 +146,23 @@ describe('readme', () => {
     { id: '04', name: 'alice', profile: { age: 15 } },
     { id: '01', name: 'Alice', profile: { age: 17 } },
   ]))
+
+  test('selector', () => {
+    const compareByPropertyPath = comparing.rule({
+      selector(fullpath: string) {
+        const paths = fullpath.replace(/\[(\d+)]/g, '.$1').split('.').filter(Boolean);
+        return obj => paths.every(path => (obj = obj[path]) != null) && obj;
+      },
+    });
+    expect(
+      users.sort(compareByPropertyPath('profile.age', 'id'))
+    ).toEqual([
+      { id: '02', name: 'Bob'                         },
+      { id: '04', name: 'alice', profile: { age: 15 } },
+      { id: '06', name: 'Bob',   profile: { age: 15 } },
+      { id: '03',                profile: { age: 16 } },
+      { id: '01', name: 'Alice', profile: { age: 17 } },
+      { id: '05', name: 'bob',   profile: { age: 18 } },
+    ])
+  })
 })

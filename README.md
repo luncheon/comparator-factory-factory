@@ -1,6 +1,6 @@
 # comparing
 
-Create a comparison function to be used for sorting arrays.
+Create a comparison function to be used for sorting arrays using [Intl.Collator](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator).
 
 
 ## Install
@@ -69,6 +69,25 @@ users.sort(
 // ]
 ```
 
+```javascript
+const compareByPropertyPath = comparing.rule({
+  selector(fullpath) {
+    const paths = fullpath.replace(/\[(\d+)]/g, '.$1').split('.').filter(Boolean);
+    return obj => paths.every(path => (obj = obj[path]) != null) && obj;
+  },
+});
+
+users.sort(compareByPropertyPath('profile.age', 'id'));
+// => [
+//   { id: '02', name: 'Bob'                         },
+//   { id: '04', name: 'alice', profile: { age: 15 } },
+//   { id: '06', name: 'Bob',   profile: { age: 15 } },
+//   { id: '03',                profile: { age: 16 } },
+//   { id: '01', name: 'Alice', profile: { age: 17 } },
+//   { id: '05', name: 'bob',   profile: { age: 18 } },
+// ]
+```
+
 
 ## API
 
@@ -81,12 +100,9 @@ users.sort(
 
 ### comparator
 #### comparator(a, b) => number
-#### comparator.reversed(really?) => comparator
+#### comparator.reversed(really = true) => comparator
 #### comparator.or(anotherComparator) => comparator
 
-<!--
-Collator
-https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator -->
 
 ## Limitation
 
