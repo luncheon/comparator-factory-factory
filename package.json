@@ -15,13 +15,16 @@
     "src"
   ],
   "keywords": [
-    "compare",
-    "comparator",
-    "comparison",
-    "compare-func",
     "array",
     "sort",
-    "intl"
+    "intl",
+    "collator",
+    "compare",
+    "comparing",
+    "comparison",
+    "comparator",
+    "comparators",
+    "compare-func"
   ],
   "license": "WTFPL",
   "repository": "luncheon/comparing",

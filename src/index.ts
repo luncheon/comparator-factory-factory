@@ -6,8 +6,8 @@ export interface ComparatorFactory<K> {
 
 export interface Comparator<T> {
   (a: T, b: T): number
-  reversed(reversed?: boolean): Comparator<T>
-  or(another: (a: T, b: T) => number): Comparator<T>
+  reverse(really?: boolean): Comparator<T>
+  or(anotherComparator: (a: T, b: T) => number): Comparator<T>
 }
 
 export interface ComparisonRule<K> {
@@ -34,8 +34,8 @@ function createComparatorFactory<K>(rule: ComparisonRule<K>): ComparatorFactory<
 }
 
 function addComparatorFeatures<T>(comparator: (a: T, b: T) => number): Comparator<T> {
-  (comparator as Comparator<T>).reversed = (reversed = true) => reversed ? addComparatorFeatures((a, b) => -comparator(a, b)) : comparator as Comparator<T>;
-  (comparator as Comparator<T>).or       = another => addComparatorFeatures((a, b) => comparator(a, b) || another(a, b))
+  ;(comparator as Comparator<T>).reverse  = (really = true) => really ? addComparatorFeatures((a, b) => -comparator(a, b)) : comparator as Comparator<T>
+  ;(comparator as Comparator<T>).or       = anotherComparator => addComparatorFeatures((a, b) => comparator(a, b) || anotherComparator(a, b))
   return comparator as Comparator<T>
 }
 

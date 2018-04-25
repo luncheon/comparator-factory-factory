@@ -1,20 +1,51 @@
 # comparing
 
-Create a comparison function to be used for sorting arrays using [Intl.Collator](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator).
+Create a comparison function to be used for sorting arrays.
 
+
+## Features
+
+* Function-based comparison value selection
+  * Property-path-based comparison value selection can be implemented easily
+* Handling `undefined`, `null`, `NaN` as first or last
+* String collation using native `Intl.Collator`
+  * Locale-specific collation
+  * Case order: case-insensitive / upper-first / lower-first
+  * Numeric collation such that "1" < "2" < "10"
+  * [See Intl.Collator at MDN for details](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator)
+* Chaining comparison functions
+* Lightweight (< 1kb gzipped IIFE)
 
 ## Install
 
-```bash
-T.B.D.
-```
+> _T.B.D._
 
-## Usage & Examples
+<!-- ### via npm
+
+```bash
+$ npm install comparing
+```
 
 ```javascript
 import comparing from 'comparing';
 // const comparing = require('comparing');
 
+[].sort(comparing())
+```
+
+### via CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/comparing@0.1.0"></script>
+<script>
+  [].sort(comparing())
+</script>
+``` -->
+
+
+## Usage & Examples
+
+```javascript
 ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparing());
 // => [null, 'A1', 'A10', 'a3', 'A3', 'A5', 'A7']
 ```
@@ -28,7 +59,7 @@ const comparingNumericUpperFirst = comparing.rule({
 ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst());
 // => ['A1', 'A3', 'a3', 'A5', 'A7', 'A10', null]
 
-['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst().reversed());
+['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst().reverse());
 // => [null, 'A10', 'A7', 'A5', 'a3', 'A3', 'A1']
 ```
 
@@ -55,7 +86,7 @@ users.sort(comparing(x => [x.profile.age, x.id]))
 users.sort(
   comparing
     .rule({ specials: [[undefined, 'last']], collator: { sensitivity: 'base' } })(x => x.name)
-    .reversed()
+    .reverse()
     .or(comparing.rule({ specials: [[undefined, 'last']] })(x => x.profile.age))
     .or(comparing(x => x.id))
 );
@@ -100,7 +131,7 @@ users.sort(compareByPropertyPath('profile.age', 'id'));
 
 ### comparator
 #### comparator(a, b) => number
-#### comparator.reversed(really = true) => comparator
+#### comparator.reverse(really = true) => comparator
 #### comparator.or(anotherComparator) => comparator
 
 
@@ -131,8 +162,14 @@ const compare = comparing.rule({ specials: [[undefined, 'first'], [null, 'first'
 ```
 
 
+## License
+
+WTFPL
+
+
 ## Similar modules
 
 * [compare-func](https://www.npmjs.com/package/compare-func)
 * [default-compare](https://www.npmjs.com/package/default-compare)
 * [comparators](https://www.npmjs.com/package/comparators)
+* [ts-comparators](https://www.npmjs.com/package/ts-comparators)

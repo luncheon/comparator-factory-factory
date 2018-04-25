@@ -21,7 +21,7 @@ describe('readme', () => {
       ['A1', 'A3', 'a3', 'A5', 'A7', 'A10', null]
     )
     expect(
-      ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst().reversed())
+      ['A5', 'A1', null, 'A3', 'A10', 'a3', 'A7'].sort(comparingNumericUpperFirst().reverse())
     ).toEqual(
       [null, 'A10', 'A7', 'A5', 'a3', 'A3', 'A1']
     )
@@ -76,7 +76,7 @@ describe('readme', () => {
   ]))
 
   test('users01-03', () => expect(
-    users.sort(comparing(x => [x.profile.age, x.id]).reversed())
+    users.sort(comparing(x => [x.profile.age, x.id]).reverse())
   ).toEqual([
     { id: '05', name: 'bob',   profile: { age: 18 } },
     { id: '01', name: 'Alice', profile: { age: 17 } },
@@ -87,7 +87,7 @@ describe('readme', () => {
   ]))
 
   test('users01-03', () => expect(
-    users.sort(comparing(x => [x.profile.age, x.id]).reversed(false))
+    users.sort(comparing(x => [x.profile.age, x.id]).reverse(false))
   ).toEqual([
     { id: '02', name: 'Bob'                         },
     { id: '04', name: 'alice', profile: { age: 15 } },
@@ -98,7 +98,7 @@ describe('readme', () => {
   ]))
 
   test('users01-04', () => expect(
-    users.sort(comparing(x => [x.profile.age, x.id]).reversed().reversed())
+    users.sort(comparing(x => [x.profile.age, x.id]).reverse().reverse())
   ).toEqual([
     { id: '02', name: 'Bob'                         },
     { id: '04', name: 'alice', profile: { age: 15 } },
@@ -109,7 +109,7 @@ describe('readme', () => {
   ]))
 
   test('users01-05', () => expect(
-    users.sort(comparing(x => [x.profile.age, x.id]).reversed().reversed(false))
+    users.sort(comparing(x => [x.profile.age, x.id]).reverse().reverse(false))
   ).toEqual([
     { id: '05', name: 'bob',   profile: { age: 18 } },
     { id: '01', name: 'Alice', profile: { age: 17 } },
@@ -134,7 +134,7 @@ describe('readme', () => {
     users.sort(
       comparing
         .rule({ specials: [[undefined, 'last']], collator: { sensitivity: 'base' } })(x => x.name)
-        .reversed()
+        .reverse()
         .or(comparing.rule({ specials: [[undefined, 'last']] })(x => x.profile.age))
         .or(comparing(x => x.id))
     )
