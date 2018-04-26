@@ -1,6 +1,7 @@
 # comparator-factory-factory
 
-Create comparison functions to be used for sorting arrays.
+Create comparison functions to be used for sorting arrays.  
+This is a dedicated tiny library, not aiming at a [framework](http://discuss.joelonsoftware.com/default.asp?joel.3.219431.12).
 
 
 ## Features
@@ -31,7 +32,6 @@ import comparatorFactoryFactory from "comparator-factory-factory";
 // const comparatorFactoryFactory = require("comparator-factory-factory");
 
 const comparing = comparatorFactoryFactory();
-
 [].sort(comparing());
 ```
 
@@ -191,7 +191,7 @@ Create a comparison function factory based on the specified rule.
   }
   ```
 
-  Following code is a property-path-based comparison example using [lodash/get](https://lodash.com/docs/#get). (FYI, [there are so many similar modules...](http://www.npmtrends.com/lodash-vs-underscore-vs-get-value-vs-dot-prop-vs-object-path-vs-pathval-vs-object-resolve-path-vs-fast-get-vs-selectn)).
+  Following code is a property-path-based comparison example using [lodash/get](https://lodash.com/docs/#get). (BTW, there are so many [similar modules](http://www.npmtrends.com/lodash-vs-underscore-vs-get-value-vs-dot-prop-vs-object-path-vs-pathval-vs-object-resolve-path-vs-fast-get-vs-selectn).)
 
   ```javascript
   const get = require("lodash/get");
