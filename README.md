@@ -1,6 +1,6 @@
 # comparator-factory-factory
 
-Create a comparison function to be used for sorting arrays.
+Create comparison functions to be used for sorting arrays.
 
 
 ## Features
@@ -14,6 +14,8 @@ Create a comparison function to be used for sorting arrays.
   * Numeric collation such that "1" < "2" < "10"
   * [See Intl.Collator at MDN for details](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator)
 * Chaining comparison functions
+* Creating not a comparison function but a comparison function factory;  
+  Designed to share comparison rules in the product
 * Lightweight (< 1kb gzipped IIFE)
 
 ## Install
@@ -131,19 +133,29 @@ const users = [
 
 ## API
 
+### Summary
+
 ```javascript
 // Create a comparison function factory based on the specified rule.
 const comparatorFactory = comparatorFactoryFactory({
   selector: key => obj => comparisonResult,
   specials: [[undefined, "first"], [null, "first"], [NaN, "first"]],
-  collator: Intl.Collator(),
-  locales:  "ja-JP",
+  collator: {
+    locales:      undefined,   // a BCP 47 language tag, or an array of such strings
+    sensitivity:  "variant",   // "base" / "accent" / "case" / "variant"
+    numeric:      false,
+    caseFirst:    "false",    // "upper" / "lower" / "false" (use the locale's default)
+  },
 });
 
 // Create a comparison function.
 const comparator = comparatorFactory(key1, key2, ...);
 
-// Create a reversed comparison function.
+// Evaluate.
+// 0 if obj1 and obj2 are equal, a negative number if obj1 is smaller, a positive number if obj1 is larger.
+const comparisonResult = comparator(obj1, obj2);
+
+// Create a comparison function with reverse order.
 const reversedComparator = comparator.reversed();
 
 // Comparator itself.
@@ -152,15 +164,11 @@ const comparatorItself = comparator.reversed(false);
 // Create a combined comparison function.
 // If comparator(obj1, obj2) === 0 (or falsy), then evaluate specified comparison function.
 const combinedComparator = comparator.or((obj1, obj2) => number);
-
-// Evaluate.
-// 0 if obj1 and obj2 are equal.
-// Negative number if obj1 is smaller.
-// Positive number if obj1 is larger.
-const comparisonResult = comparator(obj1, obj2);
 ```
 
-### comparatorFactoryFactory({ selector?, specials?, locales?, collator? }) => comparaotrFactory
+### comparatorFactoryFactory({ selector?, specials?, locales?, collator? }) => comparatorFactory
+
+Create a comparison function factory based on the specified rule.
 
 #### Parameters
 
@@ -215,17 +223,40 @@ const comparisonResult = comparator(obj1, obj2);
   String comparison method.  
   Possible values are as follows.
 
-  * An options object of `Intl.Collator` constructor
+  * An options object for `Intl.Collator` constructor with optional property `locales`
   * An `Intl.Collator` instance
   * An object that has `compare(string1, string2) => number` method
 
+  [See Intl.Collator at MDN for details.](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator)  
   The default value is the default `Intl.Collator()`.
 
-* `locales`
+### comparatorFactory(key1, key2, ...) => comparator
 
-  Locales for `Intl.Collator`.  
-  Used only if the `collator` option above does not has `compare()` method (means the `collator` is an options object of `Intl.Collator` constructor).  
-  The default value is `undefined`.
+Create a comparison function.
+
+#### Parameters
+
+* `key1`, `key2`, ...
+
+  Comparison key passed to the `selector` option of the rule.  
+  If the length of arguments is 0, `obj` itself becomes the `key`.
+
+### comparator(obj1, obj2) => number
+
+Evaluate.
+
+0 if obj1 and obj2 are considered to be equal,  
+a negative number if obj1 is considered to be smaller than obj2,  
+a positive number if obj1 is considered to be larger than obj2.
+
+### comparator.reversed(really = true) => comparator
+
+Create a comparison function with reverse order.
+
+### comparator.or((obj1, obj2) => number) => comparator
+
+Create a combined comparison function.  
+If comparator(obj1, obj2) === 0 (or falsy), evaluate specified comparison function next.
 
 
 ## Limitation

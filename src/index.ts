@@ -9,8 +9,7 @@ export interface Comparator<T> {
 export interface ComparisonRule<K> {
   readonly selector?: (key: K) => (obj: any) => any
   readonly specials?: SpecialHandling[]
-  readonly locales?:  string | string[]
-  readonly collator?: Intl.CollatorOptions | { compare(a: string, b: string): number }
+  readonly collator?: Intl.CollatorOptions & { locales?: string | string[] } | { compare(a: string, b: string): number }
 }
 
 export type PureComparator<T> = (a: T, b: T) => number
@@ -49,8 +48,8 @@ function createComparator<T, K>(rule: ComparisonRule<K>, keys: ArrayLike<K>): Pu
 function _createComparator<T, K>(rule: ComparisonRule<K>, key?: K): PureComparator<T> {
   const valueSelector   = key ? (rule.selector || defaultSelector)(key) : (obj: T) => obj as any
   const compareSpecials = createSpecialsComparator(rule.specials)
-  const collator        = rule.collator as Intl.CollatorOptions & { compare(a: string, b: string): number }
-  const compareString   = collator && typeof collator.compare === 'function' ? collator : Intl.Collator(rule.locales, collator)
+  const collator        = rule.collator as Intl.CollatorOptions & { locales?: string | string[], compare(a: string, b: string): number }
+  const compareString   = collator && typeof collator.compare === 'function' ? collator : Intl.Collator(collator && collator.locales, collator)
   const compareValue    = (a: any, b: any): number => {
     let result: number | undefined
     return (
