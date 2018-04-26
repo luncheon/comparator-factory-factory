@@ -1,6 +1,6 @@
 {
   "name": "comparator-factory-factory",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Create comparison functions to be used for sorting arrays.",
   "main": "index",
   "module": "index.mjs",

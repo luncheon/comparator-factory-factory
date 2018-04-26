@@ -20,9 +20,7 @@ Create comparison functions to be used for sorting arrays.
 
 ## Install
 
-> _T.B.D._
-
-<!-- ### via npm
+### via npm
 
 ```bash
 $ npm install comparator-factory-factory
@@ -32,7 +30,7 @@ $ npm install comparator-factory-factory
 import comparatorFactoryFactory from "comparator-factory-factory";
 // const comparatorFactoryFactory = require("comparator-factory-factory");
 
-const comparing = comparatorFactoryFactory({});
+const comparing = comparatorFactoryFactory();
 
 [].sort(comparing());
 ```
@@ -42,10 +40,10 @@ const comparing = comparatorFactoryFactory({});
 ```html
 <script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.1.0"></script>
 <script>
-  const comparing = comparatorFactoryFactory({});
+  const comparing = comparatorFactoryFactory();
   [].sort(comparing());
 </script>
-``` -->
+```
 
 
 ## Usage & Examples
