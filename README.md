@@ -14,8 +14,8 @@ Create comparison functions to be used for sorting arrays.
   * Numeric collation such that "1" < "2" < "10"
   * [See Intl.Collator at MDN for details](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator)
 * Chaining comparison functions
-* Creating not a comparison function but a comparison function factory;  
-  Designed to share comparison rules in the product
+* Designed to share the comparison rule in the product;  
+  Creating not a comparison function directly but a comparison function factory that may be shared
 * Lightweight (< 1kb gzipped IIFE)
 
 ## Install
@@ -139,10 +139,14 @@ const users = [
 // Create a comparison function factory based on the specified rule.
 const comparatorFactory = comparatorFactoryFactory({
   selector: key => obj => comparisonResult,
-  specials: [[undefined, "first"], [null, "first"], [NaN, "first"]],
+  specials: [
+    [undefined, "first"],
+    [null,      "first"],
+    [NaN,       "first"],     // array with 2 elements: [0] value to treat specially, [1] "first" / "last"
+  ],
   collator: {
-    locales:      undefined,   // a BCP 47 language tag, or an array of such strings
-    sensitivity:  "variant",   // "base" / "accent" / "case" / "variant"
+    locales:      undefined,  // a BCP 47 language tag, or an array of such strings
+    sensitivity:  "variant",  // "base" / "accent" / "case" / "variant"
     numeric:      false,
     caseFirst:    "false",    // "upper" / "lower" / "false" (use the locale's default)
   },
@@ -172,11 +176,11 @@ Create a comparison function factory based on the specified rule.
 
 #### Parameters
 
-* `selector`
+* `selector: key => obj => comparisonResult`
 
   A function selecting comparison value from `key` and `obj`.  
-  Passed parameter `key` is each argument of `comparatorFactory(key1, key2, ...)`.  
-  Passed parameter `obj` is each argument of `comparator(obj1, obj2)`.  
+  The receiving parameter `key` is each argument of `comparatorFactory(key1, key2, ...)`.  
+  The receiving parameter `obj` is each argument of `comparator(obj1, obj2)`.  
   The default implementation is as follows.
 
   ```javascript
@@ -189,7 +193,7 @@ Create a comparison function factory based on the specified rule.
   }
   ```
 
-  Following code is a property-path-based comparison example using [lodash](https://www.npmjs.com/package/lodash)/get.
+  Following code is a property-path-based comparison example using [lodash/get](https://lodash.com/docs/#get). (FYI, [there are so many similar modules...](http://www.npmtrends.com/lodash-vs-underscore-vs-get-value-vs-dot-prop-vs-object-path-vs-pathval-vs-object-resolve-path-vs-fast-get-vs-selectn)).
 
   ```javascript
   const get = require("lodash/get");
@@ -205,7 +209,7 @@ Create a comparison function factory based on the specified rule.
   users.sort(comparingPropertyPath("profile.age", "id"));
   ```
 
-* `specials`
+* `specials: [[value1, "first" (or "last")], [value2, "first" (or "last")], ...]`
 
   Special values to place first or last.  
   The default value is as follows.
@@ -218,14 +222,14 @@ Create a comparison function factory based on the specified rule.
   ]
   ```
 
-* `collator`
+* `collator: { locales?, sensitivity?, numeric?, caseFirst? } | { compare: (string1, string2) => number }`
 
   String comparison method.  
   Possible values are as follows.
 
   * An options object for `Intl.Collator` constructor with optional property `locales`
-  * An `Intl.Collator` instance
   * An object that has `compare(string1, string2) => number` method
+    * `Intl.Collator` instances have the `compare(string1, string2) => number` method
 
   [See Intl.Collator at MDN for details.](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator)  
   The default value is the default `Intl.Collator()`.
@@ -245,18 +249,20 @@ Create a comparison function.
 
 Evaluate.
 
-0 if obj1 and obj2 are considered to be equal,  
-a negative number if obj1 is considered to be smaller than obj2,  
-a positive number if obj1 is considered to be larger than obj2.
+0 if `obj1` and `obj2` are considered to be equal,  
+a negative number if `obj1` is considered to be smaller than `obj2`,  
+a positive number if `obj1` is considered to be larger than `obj2`.
 
-### comparator.reversed(really = true) => comparator
+### comparator.reversed(really? = true) => comparator
 
 Create a comparison function with reverse order.
 
 ### comparator.or((obj1, obj2) => number) => comparator
 
-Create a combined comparison function.  
-If comparator(obj1, obj2) === 0 (or falsy), evaluate specified comparison function next.
+Create a combined comparison function.
+
+The combined comparison function evaluates the original `comparator(obj1, obj2)` first.  
+If that result equals to 0 (or falsy), it evaluates specified comparison function next.
 
 
 ## Limitation
