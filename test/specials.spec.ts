@@ -1,8 +1,8 @@
-import comparing from './comparing'
+import comparatorFactoryFactory from './'
 
 describe('specials', () => {
   test('default', () => {
-    const comparator = comparing()
+    const comparator = comparatorFactoryFactory()()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -20,8 +20,8 @@ describe('specials', () => {
     expect(comparator(NaN, null)).toBe(1)
   })
 
-  test('default desc', () => {
-    const comparator = comparing.rule({ desc: true })()
+  test('default reversed', () => {
+    const comparator = comparatorFactoryFactory()().reversed()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -40,7 +40,7 @@ describe('specials', () => {
   })
 
   test('null first', () => {
-    const comparator = comparing.rule({ specials: [[null, 'first']] })()
+    const comparator = comparatorFactoryFactory({ specials: [[null, 'first']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -58,27 +58,27 @@ describe('specials', () => {
     expect(comparator(NaN, null)).toBe(1)
   })
 
-  test('null first desc', () => {
-    const comparator = comparing.rule({ specials: [[null, 'first']], desc: true })()
+  test('null first reversed', () => {
+    const comparator = comparatorFactoryFactory({ specials: [[null, 'first']] })().reversed()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
     expect(comparator(undefined, '')).toBe(1)
     expect(comparator('', undefined)).toBe(-1)
-    expect(comparator(null, '')).toBe(-1)
-    expect(comparator('', null)).toBe(1)
+    expect(comparator(null, '')).toBe(1)
+    expect(comparator('', null)).toBe(-1)
     expect(comparator(NaN, '')).toBe(1)
     expect(comparator('', NaN)).toBe(-1)
-    expect(comparator(undefined, null)).toBe(1)
-    expect(comparator(null, undefined)).toBe(-1)
+    expect(comparator(undefined, null)).toBe(-1)
+    expect(comparator(null, undefined)).toBe(1)
     expect(comparator(undefined, NaN)).toBe(1)
     expect(comparator(NaN, undefined)).toBe(-1)
-    expect(comparator(null, NaN)).toBe(-1)
-    expect(comparator(NaN, null)).toBe(1)
+    expect(comparator(null, NaN)).toBe(1)
+    expect(comparator(NaN, null)).toBe(-1)
   })
 
   test('NaN first null first', () => {
-    const comparator = comparing.rule({ specials: [[NaN, 'first'], [null, 'first']] })()
+    const comparator = comparatorFactoryFactory({ specials: [[NaN, 'first'], [null, 'first']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -96,46 +96,8 @@ describe('specials', () => {
     expect(comparator(NaN, null)).toBe(-1)
   })
 
-  test('NaN first null first desc', () => {
-    const comparator = comparing.rule({ specials: [[NaN, 'first'], [null, 'first']], desc: true })()
-    expect(comparator(undefined, undefined)).toBe(0)
-    expect(comparator(null, null)).toBe(0)
-    expect(comparator(NaN, NaN)).toBe(0)
-    expect(comparator(undefined, '')).toBe(1)
-    expect(comparator('', undefined)).toBe(-1)
-    expect(comparator(null, '')).toBe(-1)
-    expect(comparator('', null)).toBe(1)
-    expect(comparator(NaN, '')).toBe(-1)
-    expect(comparator('', NaN)).toBe(1)
-    expect(comparator(undefined, null)).toBe(1)
-    expect(comparator(null, undefined)).toBe(-1)
-    expect(comparator(undefined, NaN)).toBe(1)
-    expect(comparator(NaN, undefined)).toBe(-1)
-    expect(comparator(null, NaN)).toBe(1)
-    expect(comparator(NaN, null)).toBe(-1)
-  })
-
-  test('null last', () => {
-    const comparator = comparing.rule({ specials: [[null, 'last']] })()
-    expect(comparator(undefined, undefined)).toBe(0)
-    expect(comparator(null, null)).toBe(0)
-    expect(comparator(NaN, NaN)).toBe(0)
-    expect(comparator(undefined, '')).toBe(-1)
-    expect(comparator('', undefined)).toBe(1)
-    expect(comparator(null, '')).toBe(1)
-    expect(comparator('', null)).toBe(-1)
-    expect(comparator(NaN, '')).toBe(-1)
-    expect(comparator('', NaN)).toBe(1)
-    expect(comparator(undefined, null)).toBe(-1)
-    expect(comparator(null, undefined)).toBe(1)
-    expect(comparator(undefined, NaN)).toBe(-1)
-    expect(comparator(NaN, undefined)).toBe(1)
-    expect(comparator(null, NaN)).toBe(1)
-    expect(comparator(NaN, null)).toBe(-1)
-  })
-
-  test('null last desc', () => {
-    const comparator = comparing.rule({ specials: [[null, 'last']], desc: true })()
+  test('NaN first null first reversed', () => {
+    const comparator = comparatorFactoryFactory({ specials: [[NaN, 'first'], [null, 'first']] })().reversed()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -147,52 +109,14 @@ describe('specials', () => {
     expect(comparator('', NaN)).toBe(-1)
     expect(comparator(undefined, null)).toBe(-1)
     expect(comparator(null, undefined)).toBe(1)
-    expect(comparator(undefined, NaN)).toBe(1)
-    expect(comparator(NaN, undefined)).toBe(-1)
-    expect(comparator(null, NaN)).toBe(1)
-    expect(comparator(NaN, null)).toBe(-1)
-  })
-
-  test('null min', () => {
-    const comparator = comparing.rule({ specials: [[null, 'min']] })()
-    expect(comparator(undefined, undefined)).toBe(0)
-    expect(comparator(null, null)).toBe(0)
-    expect(comparator(NaN, NaN)).toBe(0)
-    expect(comparator(undefined, '')).toBe(-1)
-    expect(comparator('', undefined)).toBe(1)
-    expect(comparator(null, '')).toBe(-1)
-    expect(comparator('', null)).toBe(1)
-    expect(comparator(NaN, '')).toBe(-1)
-    expect(comparator('', NaN)).toBe(1)
-    expect(comparator(undefined, null)).toBe(1)
-    expect(comparator(null, undefined)).toBe(-1)
     expect(comparator(undefined, NaN)).toBe(-1)
     expect(comparator(NaN, undefined)).toBe(1)
     expect(comparator(null, NaN)).toBe(-1)
     expect(comparator(NaN, null)).toBe(1)
   })
 
-  test('min desc', () => {
-    const comparator = comparing.rule({ specials: [[null, 'min']], desc: true })()
-    expect(comparator(undefined, undefined)).toBe(0)
-    expect(comparator(null, null)).toBe(0)
-    expect(comparator(NaN, NaN)).toBe(0)
-    expect(comparator(undefined, '')).toBe(1)
-    expect(comparator('', undefined)).toBe(-1)
-    expect(comparator(null, '')).toBe(1)
-    expect(comparator('', null)).toBe(-1)
-    expect(comparator(NaN, '')).toBe(1)
-    expect(comparator('', NaN)).toBe(-1)
-    expect(comparator(undefined, null)).toBe(-1)
-    expect(comparator(null, undefined)).toBe(1)
-    expect(comparator(undefined, NaN)).toBe(1)
-    expect(comparator(NaN, undefined)).toBe(-1)
-    expect(comparator(null, NaN)).toBe(1)
-    expect(comparator(NaN, null)).toBe(-1)
-  })
-
-  test('null max', () => {
-    const comparator = comparing.rule({ specials: [[null, 'max']] })()
+  test('null last', () => {
+    const comparator = comparatorFactoryFactory({ specials: [[null, 'last']] })()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)
@@ -210,8 +134,8 @@ describe('specials', () => {
     expect(comparator(NaN, null)).toBe(-1)
   })
 
-  test('null max desc', () => {
-    const comparator = comparing.rule({ specials: [[null, 'max']], desc: true })()
+  test('null last reversed', () => {
+    const comparator = comparatorFactoryFactory({ specials: [[null, 'last']] })().reversed()
     expect(comparator(undefined, undefined)).toBe(0)
     expect(comparator(null, null)).toBe(0)
     expect(comparator(NaN, NaN)).toBe(0)

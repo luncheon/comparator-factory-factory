@@ -1,5 +1,5 @@
 {
-  "name": "comparing",
+  "name": "comparator-factory-factory",
   "version": "0.0.0",
   "description": "Create a comparison function to be used for sorting arrays.",
   "main": "index",
@@ -20,27 +20,27 @@
     "intl",
     "collator",
     "compare",
-    "comparing",
     "comparison",
     "comparator",
-    "comparators",
     "compare-func"
   ],
   "license": "WTFPL",
-  "repository": "luncheon/comparing",
+  "repository": "luncheon/comparator-factory-factory",
   "scripts": {
     "clean": "rimraf index.js index.mjs index.d.ts index.iife.min.js coverage",
     "build": "npm run clean && npm run build:es && npm run build:cjs && npm run build:iife && npm test",
     "build:es": "tsc -p . && node -e \"require('fs').renameSync('index.js','index.mjs')\"",
-    "build:cjs": "rollup -i index.mjs -f cjs -n comparing -o index.js",
-    "build:iife": "rollup -i index.mjs -f iife -n comparing | uglifyjs -m -c join_vars=true -o index.iife.min.js",
+    "build:cjs": "rollup -i index.mjs -f cjs -o index.js",
+    "build:iife": "rollup -i index.mjs -f iife -n comparatorFactoryFactory | uglifyjs -m -c join_vars=true -o index.iife.min.js",
     "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^22.2.3",
+    "@types/lodash": "^4.14.108",
     "jest": "^22.4.3",
+    "lodash": "^4.17.10",
     "rimraf": "^2.6.2",
-    "rollup": "^0.58.1",
+    "rollup": "^0.58.2",
     "ts-jest": "^22.4.4",
     "typescript": "^2.8.3",
     "uglify-js": "^3.3.22"

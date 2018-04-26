@@ -1,4 +1,4 @@
-# comparing
+# comparator-factory-factory
 
 Create a comparison function to be used for sorting arrays.
 
@@ -23,22 +23,25 @@ Create a comparison function to be used for sorting arrays.
 <!-- ### via npm
 
 ```bash
-$ npm install comparing
+$ npm install comparator-factory-factory
 ```
 
 ```javascript
-import comparing from "comparing";
-// const comparing = require("comparing");
+import comparatorFactoryFactory from "comparator-factory-factory";
+// const comparatorFactoryFactory = require("comparator-factory-factory");
 
-[].sort(comparing())
+const comparing = comparatorFactoryFactory({});
+
+[].sort(comparing());
 ```
 
 ### via CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/comparing@0.1.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.1.0"></script>
 <script>
-  [].sort(comparing())
+  const comparing = comparatorFactoryFactory({});
+  [].sort(comparing());
 </script>
 ``` -->
 
@@ -46,20 +49,15 @@ import comparing from "comparing";
 ## Usage & Examples
 
 ```javascript
-["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparing());
-// => [null, "A1", "A10", "a3", "A3", "A5", "A7"]
-```
-
-```javascript
-const comparingNumericUpperFirst = comparing.rule({
+const comparing = comparatorFactoryFactory({
   specials: [[null, "last"]],
   collator: { caseFirst: "upper", numeric: true },
 });
 
-["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparingNumericUpperFirst());
+["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparing());
 // => ["A1", "A3", "a3", "A5", "A7", "A10", null]
 
-["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparingNumericUpperFirst().reverse());
+["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparing().reversed());
 // => [null, "A10", "A7", "A5", "a3", "A3", "A1"]
 ```
 
@@ -73,50 +71,61 @@ const users = [
   { id: "06", name: "Bob",   profile: { age: 15 } },
 ];
 
-users.sort(comparing(x => [x.profile.age, x.id]))
-// => [
-//  { id: "02", name: "Bob"                         },
-//  { id: "04", name: "alice", profile: { age: 15 } },
-//  { id: "06", name: "Bob",   profile: { age: 15 } },
-//  { id: "03",                profile: { age: 16 } },
-//  { id: "01", name: "Alice", profile: { age: 17 } },
-//  { id: "05", name: "bob",   profile: { age: 18 } },
-// ]
+{
+  const comparing = comparatorFactoryFactory();
+  users.sort(comparing(x => [x.profile.age, x.id]));
+  // => [
+  //  { id: "02", name: "Bob"                         },
+  //  { id: "04", name: "alice", profile: { age: 15 } },
+  //  { id: "06", name: "Bob",   profile: { age: 15 } },
+  //  { id: "03",                profile: { age: 16 } },
+  //  { id: "01", name: "Alice", profile: { age: 17 } },
+  //  { id: "05", name: "bob",   profile: { age: 18 } },
+  // ]
+}
 
-users.sort(
-  comparing
-    .rule({ specials: [[undefined, "last"]], collator: { sensitivity: "base" } })(x => x.name)
-    .reverse()
-    .or(comparing.rule({ specials: [[undefined, "last"]] })(x => x.profile.age))
-    .or(comparing(x => x.id))
-);
-// => [
-//  { id: "03",                profile: { age: 16 } },
-//  { id: "06", name: "Bob",   profile: { age: 15 } },
-//  { id: "05", name: "bob",   profile: { age: 18 } },
-//  { id: "02", name: "Bob"                         },
-//  { id: "04", name: "alice", profile: { age: 15 } },
-//  { id: "01", name: "Alice", profile: { age: 17 } },
-// ]
-```
+{
+  const comparing1 = comparatorFactoryFactory({
+    specials: [[undefined, "last"]],
+    collator: { sensitivity: "base" },
+  });
+  const comparing2 = comparatorFactoryFactory({
+    specials: [[undefined, "last"]],
+  });
+  users.sort(
+    comparing1(x => x.name)
+      .reversed()
+      .or(comparing2(x => x.profile.age))
+      .or(comparing2(x => x.id))
+  );
+  // => [
+  //  { id: "03",                profile: { age: 16 } },
+  //  { id: "06", name: "Bob",   profile: { age: 15 } },
+  //  { id: "05", name: "bob",   profile: { age: 18 } },
+  //  { id: "02", name: "Bob"                         },
+  //  { id: "04", name: "alice", profile: { age: 15 } },
+  //  { id: "01", name: "Alice", profile: { age: 17 } },
+  // ]
+}
 
-```javascript
-const compareByPropertyPath = comparing.rule({
-  selector(fullpath) {
-    const paths = fullpath.replace(/\[(\d+)]/g, ".$1").split(".").filter(Boolean);
-    return obj => paths.every(path => (obj = obj[path]) != null) && obj;
-  },
-});
+{
+  const comparingPropertyPath = comparatorFactoryFactory({
+    selector(fullpath) {
+      const paths = fullpath.replace(/\[(\d+)]/g, ".$1").split(".").filter(Boolean);
+      return obj => paths.every(path => (obj = obj[path]) != null) && obj;
+    },
+  });
 
-users.sort(compareByPropertyPath("profile.age", "id"));
-// => [
-//   { id: "02", name: "Bob"                         },
-//   { id: "04", name: "alice", profile: { age: 15 } },
-//   { id: "06", name: "Bob",   profile: { age: 15 } },
-//   { id: "03",                profile: { age: 16 } },
-//   { id: "01", name: "Alice", profile: { age: 17 } },
-//   { id: "05", name: "bob",   profile: { age: 18 } },
-// ]
+  users.sort(comparingPropertyPath("profile.age", "id"));
+  // => [
+  //   { id: "02", name: "Bob"                         },
+  //   { id: "04", name: "alice", profile: { age: 15 } },
+  //   { id: "06", name: "Bob",   profile: { age: 15 } },
+  //   { id: "03",                profile: { age: 16 } },
+  //   { id: "01", name: "Alice", profile: { age: 17 } },
+  //   { id: "05", name: "bob",   profile: { age: 18 } },
+  // ]
+}
 ```
 
 
@@ -124,7 +133,7 @@ users.sort(compareByPropertyPath("profile.age", "id"));
 
 ```javascript
 // Create a comparison function factory based on the specified rule.
-const comparatorFactory = comparing.rule({
+const comparatorFactory = comparatorFactoryFactory({
   selector: key => obj => comparisonResult,
   specials: [[undefined, "first"], [null, "first"], [NaN, "first"]],
   collator: Intl.Collator(),
@@ -135,13 +144,13 @@ const comparatorFactory = comparing.rule({
 const comparator = comparatorFactory(key1, key2, ...);
 
 // Create a reversed comparison function.
-const reversedComparator = comparator.reverse();
+const reversedComparator = comparator.reversed();
 
 // Comparator itself.
-const comparatorItself = comparator.reverse(false);
+const comparatorItself = comparator.reversed(false);
 
 // Create a combined comparison function.
-// If comparator(obj1, obj2) === 0 then evaluate specified comparison function.
+// If comparator(obj1, obj2) === 0 (or falsy), then evaluate specified comparison function.
 const combinedComparator = comparator.or((obj1, obj2) => number);
 
 // Evaluate.
@@ -151,7 +160,7 @@ const combinedComparator = comparator.or((obj1, obj2) => number);
 const comparisonResult = comparator(obj1, obj2);
 ```
 
-### comparing.rule({ selector?, specials?, locales?, collator? })
+### comparatorFactoryFactory({ selector?, specials?, locales?, collator? }) => comparaotrFactory
 
 #### Parameters
 
@@ -172,13 +181,20 @@ const comparisonResult = comparator(obj1, obj2);
   }
   ```
 
-  Following is an example using [lodash.get](https://www.npmjs.com/package/lodash.get).
+  Following code is a property-path-based comparison example using [lodash](https://www.npmjs.com/package/lodash)/get.
 
   ```javascript
-  import get from "lodash.get";
+  const get = require("lodash/get");
+  const comparingPropertyPath = comparatorFactoryFactory({ selector: key => obj => get(obj, key) });
+  // for TypeScript:
+  // const comparingPropertyPath = comparatorFactoryFactory<string>({ selector: key => obj => get(obj, key) });
 
-  const propertyPathComparatorFactory = comparing.rule({ selector: key => obj => get(obj, key) });
-  const ageAndIdComparator = propertyPathComparatorFactory("profile.age", "id");
+  const users = [
+    { id: 1, profile: { age: 18 } },
+    { id: 2, profile: { age: 15 } },
+  ];
+
+  users.sort(comparingPropertyPath("profile.age", "id"));
   ```
 
 * `specials`
@@ -218,21 +234,21 @@ const comparisonResult = comparator(obj1, obj2);
 This behavior is specified in the [ECMAScript specification](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.11).
 
 ```javascript
-const compare = comparing.rule({ specials: [[undefined, "first"], [null, "first"], [NaN, "first"]] });
+const comparing = comparatorFactoryFactory({ specials: [[undefined, "first"], [null, "first"], [NaN, "first"]] });
 
-[{ id: 3 }, { id: 1 }, { id: undefined }, { id: 7 }].sort(compare(x => x.id));
+[{ id: 3 }, { id: 1 }, { id: undefined }, { id: 7 }].sort(comparing(x => x.id));
 // => [{ id: undefined }, { id: 1 }, { id: 3 }, { id: 7 }]
 // As expected.
 
-[3, 1, null, 7].sort(compare());
+[3, 1, null, 7].sort(comparing());
 // => [null, 1, 3, 7]
 // As expected.
 
-[3, 1, NaN, 7].sort(compare());
+[3, 1, NaN, 7].sort(comparing());
 // => [NaN, 1, 3, 7]
 // As expected.
 
-[3, 1, undefined, 7].sort(compare());
+[3, 1, undefined, 7].sort(comparing());
 // => [1, 3, 7, undefined]
 // NOT as expected.
 // The expected result is [undefined, 1, 3, 7] but `undefined` is always placed at the end...
