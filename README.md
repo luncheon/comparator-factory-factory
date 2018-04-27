@@ -39,7 +39,7 @@ const comparing = comparatorFactoryFactory();
 ### via CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.1"></script>
 <script>
   const comparing = comparatorFactoryFactory();
   [].sort(comparing());
@@ -50,7 +50,7 @@ or for [modern browsers](https://caniuse.com/#feat=es6-module):
 
 ```html
 <script type="module">
-  import comparatorFactoryFactory from "https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.0/index.min.mjs";
+  import comparatorFactoryFactory from "https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.1/index.min.mjs";
 
   const comparing = comparatorFactoryFactory();
   [].sort(comparing());
