@@ -2,14 +2,16 @@
   "name": "comparator-factory-factory",
   "version": "0.1.0",
   "description": "Create comparison functions to be used for sorting arrays.",
-  "main": "index",
-  "module": "index.mjs",
+  "main": "index.min",
+  "module": "index.min.mjs",
   "types": "index.d.ts",
   "jsdelivr": "index.iife.min.js",
   "unpkg": "index.iife.min.js",
   "files": [
     "index.js",
+    "index.min.js",
     "index.mjs",
+    "index.min.mjs",
     "index.d.ts",
     "index.iife.min.js",
     "src"
@@ -28,11 +30,11 @@
   "repository": "luncheon/comparator-factory-factory",
   "scripts": {
     "clean": "rimraf index.js index.mjs index.d.ts index.iife.min.js coverage",
-    "build": "npm run clean && npm run build:es && npm run build:cjs && npm run build:iife && npm test",
-    "build:es": "tsc -p . && node -e \"require('fs').renameSync('index.js','index.mjs')\"",
-    "build:cjs": "rollup -i index.mjs -f cjs -o index.js",
+    "build": "npm run clean && npm run build:mjs && npm run build:cjs && npm run build:iife && npm test",
+    "build:mjs": "tsc -p . && node -e \"require('fs').renameSync('index.js','index.mjs')\" && uglifyjs -m toplevel=true -c join_vars=true -o index.min.mjs index.mjs",
+    "build:cjs": "rollup -i index.mjs -f cjs -o index.js                                   && uglifyjs -m toplevel=true -c join_vars=true -o index.min.js  index.js",
     "build:iife": "rollup -i index.mjs -f iife -n comparatorFactoryFactory | uglifyjs -m -c join_vars=true -o index.iife.min.js",
-    "test": "jest"
+    "test": "jest && node verify/commonjs.js && node --experimental-modules verify/esmodule.mjs"
   },
   "devDependencies": {
     "@types/jest": "^22.2.3",
@@ -43,7 +45,7 @@
     "rollup": "^0.58.2",
     "ts-jest": "^22.4.4",
     "typescript": "^2.8.3",
-    "uglify-js": "^3.3.22"
+    "uglify-es": "^3.3.9"
   },
   "jest": {
     "testEnvironment": "node",

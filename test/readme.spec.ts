@@ -21,6 +21,8 @@ describe('readme', () => {
       ).toEqual(
         [null, "A10", "A7", "A5", "a3", "A3", "A1"]
       )
+      expect  (["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparing1()))
+      .toEqual(["A5", "A1", null, "A3", "A10", "a3", "A7"].sort(comparing2()))
     })
   })
 

@@ -6,6 +6,7 @@ This is a dedicated tiny library, not aiming at a [framework](http://discuss.joe
 
 ## Features
 
+* Available for both Node.js and browsers (including IE 11)
 * Function-based comparison value selection
   * Property-path-based comparison value selection can be implemented easily
 * Handling `undefined`, `null`, `NaN` as first or last

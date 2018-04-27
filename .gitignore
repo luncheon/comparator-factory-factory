@@ -1,6 +1,8 @@
 /node_modules/
 /coverage/
 /index.js
+/index.min.js
 /index.mjs
+/index.min.mjs
 /index.d.ts
 /index.iife.min.js
