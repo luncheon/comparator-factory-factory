@@ -18,7 +18,7 @@ This is a dedicated tiny library, not aiming at a [framework](http://discuss.joe
 * Chaining comparison functions
 * Designed to share the comparison rule in the product;  
   Creating not a comparison function directly but a comparison function factory that may be shared
-* Lightweight (< 1kb gzipped IIFE)
+* Lightweight (~1.6kB minified, ~0.7kB gzipped)
 
 ## Install
 
@@ -39,8 +39,19 @@ const comparing = comparatorFactoryFactory();
 ### via CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.1.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.0"></script>
 <script>
+  const comparing = comparatorFactoryFactory();
+  [].sort(comparing());
+</script>
+```
+
+or for [modern browsers](https://caniuse.com/#feat=es6-module):
+
+```html
+<script type="module">
+  import comparatorFactoryFactory from "https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.0/index.min.mjs";
+
   const comparing = comparatorFactoryFactory();
   [].sort(comparing());
 </script>
