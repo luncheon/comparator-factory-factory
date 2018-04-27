@@ -18,7 +18,7 @@ This is a dedicated tiny library, not aiming at a [framework](http://discuss.joe
 * Chaining comparison functions
 * Designed to share the comparison rule in the product;  
   Creating not a comparison function directly but a comparison function factory that may be shared
-* Lightweight (~1.6kB minified, ~0.7kB gzipped)
+* Lightweight (~1.7kB minified, ~0.7kB gzipped)
 
 ## Install
 
@@ -150,9 +150,9 @@ const users = [
 const comparatorFactory = comparatorFactoryFactory({
   selector: key => obj => comparisonResult,
   specials: [
-    [undefined, "first"],
-    [null,      "first"],
-    [NaN,       "first"],     // array with 2 elements: [0] value to treat specially, [1] "first" / "last"
+    [undefined, "first"],     // array with 2 elements: 
+    [null,      "first"],     // [0] value to treat specially
+    [NaN,       "first"],     // [1] "first" / "last"
   ],
   collator: {
     locales:      undefined,  // a BCP 47 language tag, or an array of such strings
@@ -166,7 +166,9 @@ const comparatorFactory = comparatorFactoryFactory({
 const comparator = comparatorFactory(key1, key2, ...);
 
 // Evaluate.
-// 0 if obj1 and obj2 are equal, a negative number if obj1 is smaller, a positive number if obj1 is larger.
+// 0 if obj1 and obj2 are equal,
+// a negative number if obj1 is smaller,
+// a positive number if obj1 is larger.
 const comparisonResult = comparator(obj1, obj2);
 
 // Create a comparison function with reverse order.
@@ -176,7 +178,7 @@ const reversedComparator = comparator.reversed();
 const comparatorItself = comparator.reversed(false);
 
 // Create a combined comparison function.
-// If comparator(obj1, obj2) === 0 (or falsy), then evaluate specified comparison function.
+// If comparator(obj1, obj2) is falsy, then evaluate specified comparison function.
 const combinedComparator = comparator.or((obj1, obj2) => number);
 ```
 
@@ -207,9 +209,13 @@ Create a comparison function factory based on the specified rule.
 
   ```javascript
   const get = require("lodash/get");
-  const comparingPropertyPath = comparatorFactoryFactory({ selector: key => obj => get(obj, key) });
+  const comparingPropertyPath = comparatorFactoryFactory({
+    selector: key => obj => get(obj, key),
+  });
   // for TypeScript:
-  // const comparingPropertyPath = comparatorFactoryFactory<string>({ selector: key => obj => get(obj, key) });
+  // const comparingPropertyPath = comparatorFactoryFactory<string>({
+  //   selector: key => obj => get(obj, key),
+  // });
 
   const users = [
     { id: 1, profile: { age: 18 } },
@@ -238,8 +244,7 @@ Create a comparison function factory based on the specified rule.
   Possible values are as follows.
 
   * An options object for `Intl.Collator` constructor with optional property `locales`
-  * An object that has `compare(string1, string2) => number` method
-    * `Intl.Collator` instances have the `compare(string1, string2) => number` method
+  * An object that has `compare(string1, string2) => number` method (a `Intl.Collator` instance does)
 
   [See Intl.Collator at MDN for details.](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Collator)  
   The default value is the default `Intl.Collator()`.
@@ -281,7 +286,9 @@ If that result equals to 0 (or falsy), it evaluates specified comparison functio
 This behavior is specified in the [ECMAScript specification](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.11).
 
 ```javascript
-const comparing = comparatorFactoryFactory({ specials: [[undefined, "first"], [null, "first"], [NaN, "first"]] });
+const comparing = comparatorFactoryFactory({
+  specials: [[undefined, "first"], [null, "first"], [NaN, "first"]],
+});
 
 [{ id: 3 }, { id: 1 }, { id: undefined }, { id: 7 }].sort(comparing(x => x.id));
 // => [{ id: undefined }, { id: 1 }, { id: 3 }, { id: 7 }]
@@ -298,7 +305,8 @@ const comparing = comparatorFactoryFactory({ specials: [[undefined, "first"], [n
 [3, 1, undefined, 7].sort(comparing());
 // => [1, 3, 7, undefined]
 // NOT as expected.
-// The expected result is [undefined, 1, 3, 7] but `undefined` is always placed at the end...
+// The expected result is [undefined, 1, 3, 7]
+// but `undefined` is always placed at the end...
 ```
 
 
