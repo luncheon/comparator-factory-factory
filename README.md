@@ -253,7 +253,7 @@ Create a comparison function.
 * `key1`, `key2`, ...
 
   Comparison key passed to the `selector` option of the rule.  
-  If the length of arguments is 0, `obj` itself becomes the `key`.
+  If the length of arguments is 0, `obj` itself becomes the comparison value.
 
 ### comparator(obj1, obj2) => number
 
