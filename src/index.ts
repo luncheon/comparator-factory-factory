@@ -21,6 +21,9 @@ export default function comparatorFactoryFactory<K = (obj: any) => any>(rule?: C
   }
 }
 
+// avoid trivial troubles on import
+(comparatorFactoryFactory as any).default = comparatorFactoryFactory
+
 function addComparatorFeatures<T>(comparator: PureComparator<T>): Comparator<T> {
   ;(comparator as Comparator<T>).reversed = (really = true) => really ? addComparatorFeatures((a, b) => { const result = comparator(a, b); return result && -result }) : comparator as Comparator<T>
   ;(comparator as Comparator<T>).or       = anotherComparator => addComparatorFeatures((a, b) => comparator(a, b) || anotherComparator(a, b))
