@@ -22,7 +22,7 @@ This is a dedicated tiny library, not aiming at a [framework](http://discuss.joe
 
 ## Install
 
-### via npm
+### via [npm](https://www.npmjs.com/package/comparator-factory-factory)
 
 ```bash
 $ npm install comparator-factory-factory
@@ -36,7 +36,7 @@ const comparing = comparatorFactoryFactory();
 [].sort(comparing());
 ```
 
-### via CDN
+### via CDN ([jsDelivr](https://www.jsdelivr.com/package/npm/comparator-factory-factory))
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/comparator-factory-factory@0.2.1"></script>
@@ -309,13 +309,18 @@ const comparing = comparatorFactoryFactory({
 // but `undefined` is always placed at the end...
 ```
 
+## Attention
+
+Node.js supports only English locale by default (as of v10.0.0).  
+Please check the document of [Internationalization Support](https://nodejs.org/api/intl.html).
+
 
 ## License
 
 WTFPL
 
 
-## Similar modules
+## Similar modules for comparison
 
 * [compare-func](https://www.npmjs.com/package/compare-func)
 * [default-compare](https://www.npmjs.com/package/default-compare)
